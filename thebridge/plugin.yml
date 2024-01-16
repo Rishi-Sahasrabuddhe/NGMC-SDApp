@@ -1,0 +1,7 @@
+---
+name: thebridge
+version: 0.0.1
+main: thebridge\Main
+api: 5.10.0
+src-namespace-prefix: thebridge
+...
