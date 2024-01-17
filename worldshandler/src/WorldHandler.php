@@ -11,7 +11,7 @@ use pocketmine\world\WorldCreationOptions;
 
 class WorldHandler
 {
-    static function getFlatOptions(): WorldCreationOptions
+    static function getVoidOptions(): WorldCreationOptions
     {
         $options = WorldCreationOptions::create();
         $options->setGeneratorOptions("2;1;0");

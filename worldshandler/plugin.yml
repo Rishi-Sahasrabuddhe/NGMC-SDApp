@@ -4,6 +4,8 @@ version: 0.0.1
 main: worldshandler\Main
 api: 5.10.0
 src-namespace-prefix: worldshandler
+prefix: Worlds Handler
+author: Rishi
 commands:
   newworld:
     description: Creates a new world
@@ -14,6 +16,9 @@ commands:
     permission-message: "§cYou do not have permission to use this command"
 
 permissions:
+  player:
+    description: Player
+    default: true
   admin:
     description: Given all permissions on the server
     default: op

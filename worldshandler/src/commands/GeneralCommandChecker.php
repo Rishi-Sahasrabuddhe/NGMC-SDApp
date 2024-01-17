@@ -7,16 +7,13 @@ namespace worldshandler\commands;
 use pocketmine\player\Player;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\utils\TextFormat;
 
 class GeneralCommandChecker
 {
     static function checkInstanceOfPlayer($sender): bool
     {
-        if ($sender instanceof Player) {
-            return true;
-        } else {
-            return false;
-        }
+        return $sender instanceof Player;
     }
     static function playerValidationMessage(): string
     {
@@ -26,15 +23,24 @@ class GeneralCommandChecker
     static function checkIfHasPermission(CommandSender $sender, Command $command): bool
     {
         foreach ($command->getPermissions() as $permission) {
-            if ($sender->hasPermission($permission)) {
+            if ($sender->hasPermission($permission)) { // Returns true if player has required permission
                 return true;
             }
         }
         return false;
     }
 
-    static function permissionValidationMessage(): string
+    static function permissionValidationMessage(Command $command): string
     {
-        return "§cError: You don't have the required permission to run this command!";
+        $message = TextFormat::RED . "Error: You don't have the required permission to run this command!\n" .
+            TextFormat::RESET . "You require one of the following permissions to execute this command:\n";
+
+        $permissions = $command->getPermissions();
+
+        foreach ($permissions as $permission) {
+            $message .= "- $permission\n";
+        }
+
+        return $message;
     }
 }

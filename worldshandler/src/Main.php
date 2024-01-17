@@ -7,6 +7,7 @@ namespace worldshandler;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\TextFormat;
 
 # Commands
 use worldshandler\commands\GeneralCommandChecker as GeneralCC;
@@ -19,30 +20,30 @@ class Main extends PluginBase
     {
         switch ($command->getName()) {
             case 'newworld':
-                if (!GeneralCC::checkIfHasPermission($sender, $command)) {
-                    $sender->sendMessage(GeneralCC::permissionValidationMessage());
-                    return false;
-                }
-
-                $arg = isset($args[0]) ? $args[0] : 'help';
-
-                if ($arg === 'help') {
-                    $sender->sendMessage(NW::NWHELP);
+                if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
+                    $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
                     return true;
                 }
-                if (!isset($args[1])) {
+
+                $worldType = isset($args[0]) ? $args[0] : 'help'; // Sets world type
+
+                if ($worldType === 'help') {
+                    $sender->sendMessage(NW::NWHELP); // Sends help message
+                    return true;
+                }
+                if (!isset($args[1])) { // Checks if world name is not included
                     $sender->sendMessage("Error: Please include a world name.");
                     return false;
                 }
-                $worldName = NW::cleanWorldName($args[1]);
+                $worldName = NW::cleanWorldName($args[1]); // Removes illegal characters in world name
 
-                switch ($arg) {
+                switch ($worldType) {
                     case 'void':
-                        if (NW::createVoidWorld($worldName)) {
+                        if (NW::createVoidWorld($worldName)) { // Returns true if void world successfully created.
                             $sender->sendMessage("Void world '$worldName' successfully created!");
                             return true;
                         } else {
-                            if (WorldHandler::isWorldGenerated($worldName)) {
+                            if (WorldHandler::isWorldGenerated($worldName)) { // Returns true if world was already previously generated
                                 $sender->sendMessage("World $worldName already exists!");
                                 return true;
                             }
@@ -50,9 +51,12 @@ class Main extends PluginBase
                         }
                         break;
                     default:
-                        $sender->sendMessage("Error: Unknown world type: §o$args[0]§r!");
+                        $sender->sendMessage("Error: Unknown world type: " . TextFormat::ITALIC . $args[0] . TextFormat::RESET . "!");
                         break;
                 }
+                break;
+            default:
+                $sender->sendMessage("Error: Unknown command /" . $command->getName() . ". Please try again.");
                 break;
         }
         return true;
