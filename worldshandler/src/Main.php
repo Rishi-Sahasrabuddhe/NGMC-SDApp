@@ -8,10 +8,14 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
+use pocketmine\world\World;
 
 # Commands
+use pocketmine\world\WorldCreationOptions;
 use worldshandler\commands\GeneralCommandChecker as GeneralCC;
+use worldshandler\commands\GetWorld;
 use worldshandler\commands\NewWorld as NW;
+use worldshandler\commands\JoinWorld as JW;
 
 class Main extends PluginBase
 {
@@ -54,6 +58,49 @@ class Main extends PluginBase
                         $sender->sendMessage("Error: Unknown world type: " . TextFormat::ITALIC . $args[0] . TextFormat::RESET . "!");
                         break;
                 }
+                break;
+            case 'joinworld':
+                if (!GeneralCC::checkInstanceOfPlayer($sender)) {
+                    $sender->sendMessage(GeneralCC::playerValidationMessage());
+                    return true;
+                }
+                if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
+                    $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
+                    return true;
+                }
+
+                $worldName = isset($args[0]) ? strtolower($args[0]) : 'help';
+
+                if ($worldName === 'help') {
+                    $sender->sendMessage(JW::JWHELP);
+                    return true;
+                }
+
+                if (JW::joinWorld($worldName, $sender)) {
+                    $sender->sendMessage($sender->getName() . " has successfully joined $worldName");
+                } else {
+                    $sender->sendMessage($sender->getName() . " could not join $worldName");
+                }
+                break;
+            case 'getworld':
+                if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
+                    $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
+                    return true;
+                }
+                $player = (isset($args[0])) ? $args[0] : $sender->getName();
+                $world = GetWorld::getWorldByPlayer($player);
+                if ($world instanceof World) {
+                    $worldName = $world->getFolderName();
+                    $sender->sendMessage("$player is in $worldName.");
+                    return true;
+                }
+                if ($world === null) {
+                    $sender->sendMessage("$player not found or is not online");
+                    return true;
+                }
+                $sender->sendMessage(TextFormat::RED . TextFormat::BOLD . "Internal error!" . TextFormat::RESET);
+
+
                 break;
             default:
                 $sender->sendMessage("Error: Unknown command /" . $command->getName() . ". Please try again.");

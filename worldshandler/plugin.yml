@@ -14,6 +14,20 @@ commands:
       - nw
     permission: admin
     permission-message: "§cYou do not have permission to use this command"
+  joinworld:
+    description: Joins a world
+    usage: "/joinworld <world-name>"
+    aliases:
+      - jw
+    permission: admin
+    permission-message: "§cYou do not have permission to use this command"
+  getworld:
+    description: Gets world of self or player
+    usage: "/getworld [player]"
+    aliases:
+      - world
+    permission: admin
+    permission-message: "§cYou do not have permission to use this command"
 
 permissions:
   player:
