@@ -7,6 +7,7 @@ namespace worldshandler;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\Position;
+use pocketmine\math\Vector3;
 use pocketmine\world\World;
 use pocketmine\world\WorldManager;
 use pocketmine\world\WorldCreationOptions;
@@ -18,6 +19,7 @@ class WorldHandler
         $options = WorldCreationOptions::create();
         $options->setGeneratorClass("pocketmine\world\generator\Flat");
         $options->setGeneratorOptions("2;0;1");
+        $options->setSpawnPosition(new Vector3(0.5, 21, 0.5));
         return $options;
     }
 
@@ -39,7 +41,7 @@ class WorldHandler
         return $worldManager->isWorldGenerated($worldName);
     }
 
-    static function getWorldByString(string $worldName): World
+    static function getWorldByString(string $worldName): ?World
     {
         $worldManager = self::getWorldManager();
         return $worldManager->getWorldByName($worldName);
@@ -49,6 +51,12 @@ class WorldHandler
     {
         $worldManager = self::getWorldManager();
         return $worldManager->loadWorld($world);
+    }
+    static function unloadWorld(string $world): ?bool
+    {
+        $worldManager = self::getWorldManager();
+
+        return $worldManager->unloadWorld(self::getWorldByString($world));
     }
 
     static function joinWorld(string $world, Player $player, ?Position $pos = null): bool

@@ -17,7 +17,7 @@ class GetWorld
 
 
     /**
-     * Find the world an online player is currently in
+     * Find the world an online player is currently in. Can only be run by players (NOT CONSOLE).
      * 
      * @param string $playerName Name of player in a string
      * @param Player $playerObject Object of the player. Either $playerName or $playerObject should be provided.
@@ -26,6 +26,7 @@ class GetWorld
      */
     static function getWorldByPlayer(string $playerName = null, Player $playerObject = null): false|World|null
     {
+
         $server = Server::getInstance();
 
 

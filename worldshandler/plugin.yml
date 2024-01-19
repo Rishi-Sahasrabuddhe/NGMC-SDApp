@@ -12,27 +12,34 @@ commands:
     usage: "/newworld <world-type> <world-name>"
     aliases:
       - nw
-    permission: admin
+    permission: worldshandler.admin
     permission-message: "§cYou do not have permission to use this command"
   joinworld:
     description: Joins a world
     usage: "/joinworld <world-name>"
     aliases:
       - jw
-    permission: admin
+    permission: worldshandler.admin
     permission-message: "§cYou do not have permission to use this command"
   getworld:
     description: Gets world of self or player
     usage: "/getworld [player]"
     aliases:
       - world
-    permission: admin
+    permission: worldshandler.admin
+    permission-message: "§cYou do not have permission to use this command"
+  loadworld:
+    description: Loads world
+    usage: "/loadworld <world-name>"
+    permission: worldshandler.admin
+    permission-message: "§cYou do not have permission to use this command"
+  unloadworld:
+    description: Loads world
+    usage: "/unloadworld <world-name>"
+    permission: worldshandler.admin
     permission-message: "§cYou do not have permission to use this command"
 
 permissions:
-  player:
-    description: Player
-    default: true
-  admin:
+  worldshandler.admin:
     description: Given all permissions on the server
     default: op

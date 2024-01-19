@@ -16,6 +16,7 @@ use worldshandler\commands\GeneralCommandChecker as GeneralCC;
 use worldshandler\commands\GetWorld;
 use worldshandler\commands\NewWorld as NW;
 use worldshandler\commands\JoinWorld as JW;
+use worldshandler\commands\WorldLoading;
 
 class Main extends PluginBase
 {
@@ -23,6 +24,32 @@ class Main extends PluginBase
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool
     {
         switch ($command->getName()) {
+            case 'loadworld':
+                if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
+                    $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
+                    return true;
+                }
+                if (WorldLoading::loadWorld($args[0])) {
+                    $sender->sendMessage("World " . $args[0] . "successfully loaded.");
+                    return true;
+                } else {
+                    $sender->sendMessage("World " . $args[0] . "could not load. Check the name and try again.");
+                    return false;
+                }
+            case 'unloadworld':
+                if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
+                    $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
+                    return true;
+                }
+                if (WorldLoading::unloadWorld($args[0])) {
+                    $sender->sendMessage("World " . $args[0] . "successfully loaded.");
+                    return true;
+                } elseif (WorldLoading::unloadWorld($args[0]) === null) {
+                    $sender->sendMessage("World " . $args[0] . "not found. Check the name and try again.");
+                    return true;
+                } else {
+                    $sender->sendMessage("World " . $args[0] . "could not load.");
+                }
             case 'newworld':
                 if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
                     $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions

@@ -4,4 +4,19 @@ version: 0.0.1
 main: thebridge\Main
 api: 5.10.0
 src-namespace-prefix: thebridge
-...
+prefix: The Bridge
+author: Rishi
+commands:
+  createbridge:
+    description: Creates a model bridge for map building
+    usage: "/createbridge [world-name]"
+    permission: thebridge.admin
+    permission-message: "§cYou do not have permission to use this command"
+
+permissions:
+  thebrige.player:
+    description: Player
+    default: true
+  thebridge.admin:
+    description: Given all permissions on the server
+    default: op
