@@ -14,7 +14,7 @@ class CreateBridge
     /**
      * Creates a The Bridge compatible bridge at set location of a world
      * Mid-point of the bridge would be 0,15,0
-     * The bridge would go along the x axis, 40 blocks each way
+     * The bridge would go along the x axis, 30 blocks each way
      * 
      * @param World $world World type to build the bridge in.
      * @return bool True if bridge successfully created, false if bridge creation failed.
@@ -31,11 +31,11 @@ class CreateBridge
             $ypos = new Vector3(0, $y, 0);
             $world->setBlock($ypos, VanillaBlocks::STAINED_CLAY());
 
-            for ($x = 1; $x < 40; $x++) {
+            for ($x = 1; $x < 30; $x++) {
                 $redpos = new Vector3($x, $y, 0);
                 $world->setBlock($redpos, VanillaBlocks::STAINED_CLAY()->setColor(DyeColor::RED));
             }
-            for ($x = -1; $x > -40; $x--) {
+            for ($x = -1; $x > -30; $x--) {
                 $bluepos = new Vector3($x, $y, 0);
                 $world->setBlock($bluepos, VanillaBlocks::STAINED_CLAY()->setColor(DyeColor::BLUE));
             }
