@@ -1,0 +1,8 @@
+---
+name: messageservice
+version: 0.0.1
+main: messageservice\Main
+api: 5.10.0
+src-namespace-prefix: messageservice
+prefix: Message Service
+author: Rishi

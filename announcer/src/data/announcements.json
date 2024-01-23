@@ -1,0 +1,7 @@
+{
+    "test": {
+        "name": "test",
+        "announcement": "Hello! This is a test.",
+        "usability": true
+    }
+}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace worldshandler;
 
+use messageservice\Error;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
@@ -12,7 +13,7 @@ use pocketmine\world\World;
 
 # Commands
 use pocketmine\world\WorldCreationOptions;
-use worldshandler\commands\GeneralCommandChecker as GeneralCC;
+use commands\GeneralCommandChecker as GeneralCC;
 use worldshandler\commands\GetWorld;
 use worldshandler\commands\NewWorld as NW;
 use worldshandler\commands\JoinWorld as JW;
@@ -88,7 +89,7 @@ class Main extends PluginBase
                 break;
             case 'joinworld':
                 if (!GeneralCC::checkInstanceOfPlayer($sender)) {
-                    $sender->sendMessage(GeneralCC::playerValidationMessage());
+                    $sender->sendMessage(Error::NOTPLAYER);
                     return true;
                 }
                 if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
@@ -125,12 +126,12 @@ class Main extends PluginBase
                     $sender->sendMessage("$player not found or is not online");
                     return true;
                 }
-                $sender->sendMessage(TextFormat::RED . TextFormat::BOLD . "Internal error!" . TextFormat::RESET);
+                $sender->sendMessage(Error::INTERNAL);
 
 
                 break;
             default:
-                $sender->sendMessage("Error: Unknown command /" . $command->getName() . ". Please try again.");
+                $sender->sendMessage(Error::unknownCommandError($command)->sendError());
                 break;
         }
         return true;
