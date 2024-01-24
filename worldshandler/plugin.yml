@@ -38,6 +38,11 @@ commands:
     usage: "/unloadworld <world-name>"
     permission: worldshandler.admin
     permission-message: "§cYou do not have permission to use this command"
+  setBlock:
+    description: Spawns bedrock at the given coordinates (or 0,10,0)
+    usage: "/unloadworld [x] [y] [z]"
+    permission: worldshandler.admin
+    permission-message: "§cYou do not have permission to use this command"
 
 permissions:
   worldshandler.admin:

@@ -29,7 +29,7 @@ class WorldHandler
         return $server->getWorldManager();
     }
 
-    static function generateWorld($worldName, $options, $backgroundGeneration = true): bool
+    static function generateWorld(string $worldName, WorldCreationOptions $options, bool $backgroundGeneration = true): bool
     {
         $worldManager = self::getWorldManager();
         return $worldManager->generateWorld($worldName, $options, $backgroundGeneration);

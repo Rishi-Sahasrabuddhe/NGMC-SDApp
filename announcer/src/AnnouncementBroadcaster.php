@@ -25,7 +25,7 @@ class AnnouncementBroadcaster extends Task
             $server->getLogger()->info((new Error("Error: No announcements available!"))->sendError());
             return;
         }
-        $server->getLogger()->info("Announcement " . $announcement->getName() . " sent as Toast!");
+        $server->getLogger()->info(TextFormat::YELLOW . "Announcement " . $announcement->getName() . " sent!");
         foreach ($players as $player) {
             $player->sendToastNotification(
                 TextFormat::YELLOW . TextFormat::BOLD . "ANNOUNCEMENT",

@@ -14,6 +14,7 @@ use pocketmine\utils\TextFormat;
 
 use commands\GeneralCommandChecker as GCC;
 use messageservice\Error;
+use pocketmine\console\ConsoleCommandSender;
 
 class Main extends PluginBase
 {
@@ -22,6 +23,7 @@ class Main extends PluginBase
 
     public function onEnable(): void
     {
+        $this->getScheduler()->scheduleRepeatingTask(new AnnouncementBroadcaster(), 20 * mt_rand(300, 600));
         $this->announcementsDatabase = new AnnouncementLists();
     }
 
@@ -45,14 +47,8 @@ class Main extends PluginBase
                 }
                 if (!isset($args[0])) $args[0] = 'help';
                 $name = isset($args[1]) ? strtolower($args[1]) : null;
-                $checkPlayer = function ($sender) {
-                    if (!GCC::checkInstanceOfPlayer($sender)) {
-                        $error = new Error("Error: You must be a player to execute this command!");
-                    }
-                };
                 switch ($args[0]) {
                     case 'add':
-                        $checkPlayer($sender);
                         if (!isset($name)) {
                             $error = new Error("Error: Name not found!");
                             $sender->sendMessage($error->sendError() . " Please include an announcement name.");
@@ -72,7 +68,6 @@ class Main extends PluginBase
                         $announcementHandler->confirmAnnouncement(new Announcement($name, $message), $sender);
                         return true;
                     case 'remove':
-                        $checkPlayer($sender);
                         if (!isset($name)) {
                             $error = new Error("Error: Name not found!");
                             $sender->sendMessage($error->sendError() . " Please include an announcement name.");
@@ -80,10 +75,13 @@ class Main extends PluginBase
                         }
                         $this->getServer()->getPluginManager()->registerEvents($announcementHandler, $this);
                         $announcement = $this->announcementsDatabase->getAnnouncementFromName($name);
+                        if ($announcement === null) {
+                            $sender->sendMessage((new Error("Error: Announcement does not exist!"))->sendError());
+                            return true;
+                        }
                         $announcementHandler->confirmDeletion($announcement, $sender);
                         return true;
                     case 'edit':
-                        $checkPlayer($sender);
                         if (!isset($name)) {
                             $error = new Error("Error: Name not found!");
                             $sender->sendMessage($error->sendError() . " Please include an announcement name.");

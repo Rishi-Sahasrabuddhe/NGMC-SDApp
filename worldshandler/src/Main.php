@@ -17,6 +17,7 @@ use commands\GeneralCommandChecker as GeneralCC;
 use worldshandler\commands\GetWorld;
 use worldshandler\commands\NewWorld as NW;
 use worldshandler\commands\JoinWorld as JW;
+use worldshandler\commands\SetBlock;
 use worldshandler\commands\WorldLoading;
 
 class Main extends PluginBase
@@ -130,6 +131,16 @@ class Main extends PluginBase
 
 
                 break;
+            case 'setBlock':
+                if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
+                    $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
+                    return true;
+                }
+                $x = isset($args[0]) ? $args[0] : 0;
+                $y = isset($args[1]) ? $args[1] : 10;
+                $z = isset($args[2]) ? $args[2] : 0;
+                $setBlock = new SetBlock($x, $y, $z, $sender);
+                $sender->sendMessage("Placed placeholder block at " . $setBlock->getPos()->__toString());
             default:
                 $sender->sendMessage(Error::unknownCommandError($command)->sendError());
                 break;
