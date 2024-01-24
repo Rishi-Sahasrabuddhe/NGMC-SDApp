@@ -1,7 +1,27 @@
 {
-    "test": {
-        "name": "test",
-        "announcement": "Hello! This is a test.",
-        "usability": true
+    "storeSale": {
+        "name": "storeSale",
+        "announcement": " Store Sale: 20% off on all items! Limited time offer. Learn more at https:\/\/ngmc.co\/store",
+        "usability": false
+    },
+    "titan": {
+        "name": "titan",
+        "announcement": "Buy Titan today for just AU$7.99\/mo and gain exclusive features here on NetherGames!",
+        "usability": false
+    },
+    "rankFeatures": {
+        "name": "tier",
+        "announcement": "DIAMOND Tier Unleashed! Gain access to LEGEND RANK abilities and commands. Grind away!",
+        "usability": false
+    },
+    "serverEvent": {
+        "name": "serverEvent",
+        "announcement": "Join us for the Mega Conquests Event this weekend! Exciting challenges and rewards await. Don't miss out!",
+        "usability": false
+    },
+    "voteRewards": {
+        "name": "voteRewards",
+        "announcement": "Vote for the server and earn exclusive rewards! Help us grow and reap the benefits!",
+        "usability": false
     }
 }

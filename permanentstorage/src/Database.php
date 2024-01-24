@@ -129,6 +129,13 @@ class Database
         return $data[$key] ?? null;
     }
 
+    public function sortByKey()
+    {
+        $data = $this->read();
+        ksort($data);
+        $this->write($data);
+    }
+
     /**
      * Get a Database instance from a specified path.
      *

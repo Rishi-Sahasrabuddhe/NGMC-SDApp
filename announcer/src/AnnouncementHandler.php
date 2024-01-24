@@ -6,6 +6,7 @@ namespace announcer;
 
 use messageservice\Error;
 use pocketmine\command\CommandSender;
+use pocketmine\console\ConsoleCommandSender;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\player\Player;
@@ -25,12 +26,16 @@ class AnnouncementHandler implements Listener
     function confirmAnnouncement(Announcement $announcement, Player|CommandSender $player)
     {
         $this->announcement = $announcement;
-        $this->player = $player;
-        $player->sendMessage(TextFormat::BOLD . "Confirm the addition of the following announcement.\n" . TextFormat::RESET .
-            TextFormat::UNDERLINE . "Name: " . TextFormat::RESET . $announcement->getName() .
-            TextFormat::UNDERLINE . "\nAnnouncement: " . $announcement->getAnnouncement());
-        $player->sendMessage("Type " . TextFormat::GREEN . "confirm add " . TextFormat::RESET . "to confirm your request.");
-        $player->sendMessage("Type " . TextFormat::RED . "cancel " . TextFormat::RESET . "to cancel your request.");
+        if ($player instanceof ConsoleCommandSender) {
+            $this->announcementConfirmed($announcement);
+        } else {
+            $this->player = $player;
+            $player->sendMessage(TextFormat::BOLD . "Confirm the addition of the following announcemeTnt.\n" . TextFormat::RESET .
+                TextFormat::UNDERLINE . "Name: " . TextFormat::RESET . $announcement->getName() .
+                TextFormat::UNDERLINE . "\nAnnouncement: " . $announcement->getAnnouncement());
+            $player->sendMessage("Type " . TextFormat::GREEN . "confirm add " . TextFormat::RESET . "to confirm your request.");
+            $player->sendMessage("Type " . TextFormat::RED . "cancel " . TextFormat::RESET . "to cancel your request.");
+        }
     }
 
     private function announcementConfirmed(Announcement $announcement)
@@ -41,12 +46,16 @@ class AnnouncementHandler implements Listener
     function confirmDeletion(Announcement $announcement, Player|CommandSender $player)
     {
         $this->announcement = $announcement;
-        $this->player = $player;
-        $player->sendMessage(TextFormat::BOLD . "Confirm the deletion of the following announcement.\n" . TextFormat::RESET .
-            TextFormat::UNDERLINE . "Name: " . TextFormat::RESET . $announcement->getName() .
-            TextFormat::UNDERLINE . "\nAnnouncement: " . $announcement->getAnnouncement());
-        $player->sendMessage("Type " . TextFormat::GREEN . "confirm delete " . TextFormat::RESET . "to confirm your request.");
-        $player->sendMessage("Type " . TextFormat::RED . "cancel " . TextFormat::RESET . "to cancel your request.");
+        if ($player instanceof ConsoleCommandSender) {
+            $this->deletionConfirmed($announcement);
+        } else {
+            $this->player = $player;
+            $player->sendMessage(TextFormat::BOLD . "Confirm the deletion of the following announcement.\n" . TextFormat::RESET .
+                TextFormat::UNDERLINE . "Name: " . TextFormat::RESET . $announcement->getName() .
+                TextFormat::UNDERLINE . "\nAnnouncement: " . $announcement->getAnnouncement());
+            $player->sendMessage("Type " . TextFormat::GREEN . "confirm delete " . TextFormat::RESET . "to confirm your request.");
+            $player->sendMessage("Type " . TextFormat::RED . "cancel " . TextFormat::RESET . "to cancel your request.");
+        }
     }
 
     private function deletionConfirmed(Announcement $announcement)
@@ -56,12 +65,16 @@ class AnnouncementHandler implements Listener
     function confirmEdit(Announcement $announcement, Player|CommandSender $player)
     {
         $this->announcement = $announcement;
-        $this->player = $player;
-        $player->sendMessage(TextFormat::BOLD . "Confirm the addition of the following announcement.\n" . TextFormat::RESET .
-            TextFormat::UNDERLINE . "Name: " . TextFormat::RESET . $announcement->getName() .
-            TextFormat::UNDERLINE . "\nAnnouncement: " . $announcement->getAnnouncement());
-        $player->sendMessage("Type " . TextFormat::GREEN . "confirm edit " . TextFormat::RESET . "to confirm your request.");
-        $player->sendMessage("Type " . TextFormat::RED . "cancel " . TextFormat::RESET . "to cancel your request.");
+        if ($player instanceof ConsoleCommandSender) {
+            $this->editConfirmed($announcement);
+        } else {
+            $this->player = $player;
+            $player->sendMessage(TextFormat::BOLD . "Confirm the addition of the following announcement.\n" . TextFormat::RESET .
+                TextFormat::UNDERLINE . "Name: " . TextFormat::RESET . $announcement->getName() .
+                TextFormat::UNDERLINE . "\nAnnouncement: " . $announcement->getAnnouncement());
+            $player->sendMessage("Type " . TextFormat::GREEN . "confirm edit " . TextFormat::RESET . "to confirm your request.");
+            $player->sendMessage("Type " . TextFormat::RED . "cancel " . TextFormat::RESET . "to cancel your request.");
+        }
     }
 
     private function editConfirmed(Announcement $announcement)
@@ -71,18 +84,35 @@ class AnnouncementHandler implements Listener
 
     function onChatConfirm(PlayerChatEvent $event)
     {
-        if ($event->getPlayer() === $this->player) {
-            $message = strtolower($event->getMessage());
-            $this->player->sendMessage("Conformation $message sent!");
-            if ($message === "cancel") $this->announcement->delete();
-            elseif ($message === "confirm add") $this->announcementConfirmed($this->announcement);
-            elseif ($message === "confirm delete") $this->deletionConfirmed($this->announcement);
-            elseif ($message === "confirm edit") $this->editConfirmed($this->announcement);
-            else {
-                $unknownCommand = new Error("Please either CONFIRM or CANCEL this operation!");
-                $this->player->sendMessage($unknownCommand->sendError());
-            }
-            $event->cancel();
+        if ($event->getPlayer() !== $this->player) {
+            $event->getPlayer()->sendMessage(Error::INTERNAL);
+            return;
         }
+
+        $message = strtolower($event->getMessage());
+        $announcementName = $this->announcement->getName();
+        $confirmationMessage = null;
+        if ($message === "cancel") {
+            $this->announcement->delete();
+            $confirmationMessage = "Operation canceled!";
+        } elseif ($message === "confirm add") {
+            $this->announcementConfirmed($this->announcement);
+            $confirmationMessage = "Announcement $announcementName added!";
+        } elseif ($message === "confirm delete") {
+            $this->deletionConfirmed($this->announcement);
+            $confirmationMessage = "Announcement $announcementName deleted!";
+        } elseif ($message === "confirm edit") {
+            $this->editConfirmed($this->announcement);
+            $confirmationMessage = "Announcement $announcementName edited!";
+        } else {
+            $unknownCommand = new Error("Please either CONFIRM or CANCEL this operation!");
+            $this->player->sendMessage($unknownCommand->sendError());
+        }
+
+        if (is_string($confirmationMessage)) {
+            $this->player->sendMessage("Confirmation: $confirmationMessage");
+        }
+
+        $event->cancel();
     }
 }

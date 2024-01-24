@@ -8,7 +8,7 @@ class Announcement
 {
     private string $name;
     private string $announcement;
-    private bool $usability = true;
+    private bool $usability;
 
     /**
      * Creates a new announcement that will show up on the player's screen during gameplay
@@ -16,11 +16,12 @@ class Announcement
      * @param string $name Name of the announcement. Names must be unique.
      * @param string $announcement Content of the announcement.
      */
-    function __construct(string $name, string $announcement)
+    function __construct(string $name, string $announcement, bool $usability = true)
     {
         $name = strtolower(str_replace(' ', '', preg_replace('/\s+/', '', $name)));
         $this->name = $name;
         $this->announcement = $announcement;
+        $this->usability = $usability;
     }
 
     function getName(): string
