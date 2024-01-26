@@ -1,8 +1,10 @@
 ---
 name: commands
 version: 0.0.1
-main: commands\Main
+main: megarabyte\commands\Main
 api: 5.10.0
-src-namespace-prefix: commands
-description: "Makes creating commands faster."
+src-namespace-prefix: megarabyte\commands
+description: "Easier command validation"
 author: Rishi
+depend:
+  - "messageservice"

@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace worldshandler\commands;
+namespace megarabyte\worldshandler\commands;
 
 use RecursiveIteratorIterator;
 
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
-use worldshandler\WorldHandler;
+
+use megarabyte\worldshandler\WorldHandler;
 
 class NewWorld
 {

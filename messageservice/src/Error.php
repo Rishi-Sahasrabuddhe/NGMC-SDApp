@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace messageservice;
+namespace megarabyte\messageservice;
 
 use pocketmine\command\Command;
 use pocketmine\utils\TextFormat;

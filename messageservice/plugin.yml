@@ -1,8 +1,9 @@
 ---
 name: messageservice
 version: 0.0.1
-main: messageservice\Main
+main: megarabyte\messageservice\Main
 api: 5.10.0
-src-namespace-prefix: messageservice
+src-namespace-prefix: megarabyte\messageservice
 prefix: Message Service
 author: Rishi
+description: Messaging Service to send players and console formatted error messages

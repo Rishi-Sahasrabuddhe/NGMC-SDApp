@@ -1,0 +1,26 @@
+---
+name: lobby
+version: 0.0.1
+main: megarabyte\lobby\Main
+api: 5.10.0
+src-namespace-prefix: megarabyte\lobby
+author: Rishi
+description: Sets up necessary data for the lobby experience.
+depend:
+  - "commands"
+  - "messageservice"
+  - "worldshandler"
+  - "writtenbooks"
+
+commands:
+  hub:
+    description: Returns sender to hub
+    usage: "/hub"
+    aliases:
+      - lobby
+      - spawn
+    permission: lobby.player
+
+permissions:
+  lobby.player:
+    default: true

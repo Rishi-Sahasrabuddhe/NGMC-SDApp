@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-namespace announcer;
+namespace megarabyte\announcer;
+
 
 use messageservice\Error;
 use pocketmine\command\CommandSender;

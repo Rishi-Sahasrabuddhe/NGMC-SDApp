@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace announcer;
-
-// require("plugins\commands\src\GeneralCommandChecker.php");
+namespace megarabyte\announcer;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -14,7 +12,6 @@ use pocketmine\utils\TextFormat;
 
 use commands\GeneralCommandChecker as GCC;
 use messageservice\Error;
-use pocketmine\console\ConsoleCommandSender;
 
 class Main extends PluginBase
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace announcer;
+namespace megarabyte\announcer;
 
 class Announcement
 {

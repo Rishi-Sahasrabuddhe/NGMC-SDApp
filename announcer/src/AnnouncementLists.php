@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace announcer;
+namespace megarabyte\announcer;
 
-use permanentstorage\Database;
+use megarabyte\permanentstorage\Database;
+
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\player\Player;

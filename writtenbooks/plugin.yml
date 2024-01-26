@@ -1,0 +1,8 @@
+---
+name: writtenbooks
+version: 0.0.1
+main: megarabyte\writtenbooks\Main
+api: 5.10.0
+src-namespace-prefix: megarabyte\writtenbooks
+author: Rishi
+description: Allows plugins to write books. Supports book Characters for engaging stories.

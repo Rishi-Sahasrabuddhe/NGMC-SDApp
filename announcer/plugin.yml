@@ -1,10 +1,14 @@
 ---
 name: announcer
 version: 0.0.1
-main: announcer\Main
+main: megarabyte\announcer\Main
 api: 5.10.0
-src-namespace-prefix: announcer
+src-namespace-prefix: megarabyte\announcer
 author: Rishi
+description: Broadcaster for announcements
+depend:
+  - "messageservice"
+  - "permanentstorage"
 
 commands:
   announcement:

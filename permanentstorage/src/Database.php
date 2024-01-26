@@ -2,15 +2,8 @@
 
 declare(strict_types=1);
 
-namespace permanentstorage;
+namespace megarabyte\permanentstorage;
 
-/**
- * Class Database
- *
- * Represents a simple JSON-based database for storing key-value pairs.
- *
- * @package permanentstorage
- */
 class Database
 {
     private string $databaseName;

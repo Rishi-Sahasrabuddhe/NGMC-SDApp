@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace commands;
+namespace megarabyte\commands;
 
 use messageservice\Error;
+
 use pocketmine\player\Player;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;

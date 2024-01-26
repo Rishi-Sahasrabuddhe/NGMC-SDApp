@@ -2,23 +2,24 @@
 
 declare(strict_types=1);
 
-namespace worldshandler;
+namespace megarabyte\worldshandler;
 
-use messageservice\Error;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
 use pocketmine\world\World;
 
-# Commands
-use pocketmine\world\WorldCreationOptions;
-use commands\GeneralCommandChecker as GeneralCC;
-use worldshandler\commands\GetWorld;
-use worldshandler\commands\NewWorld as NW;
-use worldshandler\commands\JoinWorld as JW;
-use worldshandler\commands\SetBlock;
-use worldshandler\commands\WorldLoading;
+
+use megarabyte\messageservice\Error;
+use megarabyte\commands\GeneralCommandChecker as GeneralCC;
+use megarabyte\worldshandler\commands\{
+    GetWorld,
+    NewWorld as NW,
+    JoinWorld as JW,
+    SetBlock,
+    WorldLoading
+};
 
 class Main extends PluginBase
 {
@@ -131,14 +132,18 @@ class Main extends PluginBase
 
 
                 break;
-            case 'setBlock':
+            case 'setblock':
+                if (!GeneralCC::checkInstanceOfPlayer($sender)) {
+                    $sender->sendMessage(Error::NOTPLAYER);
+                    return true;
+                }
                 if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
                     $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
                     return true;
                 }
-                $x = isset($args[0]) ? $args[0] : 0;
-                $y = isset($args[1]) ? $args[1] : 10;
-                $z = isset($args[2]) ? $args[2] : 0;
+                $x = isset($args[0]) ? intval($args[0]) : 0;
+                $y = isset($args[1]) ? intval($args[1]) : 10;
+                $z = isset($args[2]) ? intval($args[2]) : 0;
                 $setBlock = new SetBlock($x, $y, $z, $sender);
                 $sender->sendMessage("Placed placeholder block at " . $setBlock->getPos()->__toString());
             default:

@@ -1,8 +1,8 @@
 ---
 name: permanentstorage
 version: 0.0.1
-main: permanentstorage\Main
+main: megarabyte\permanentstorage\Main
 api: 5.10.0
-src-namespace-prefix: permanentstorage
-description: Allows files and databases to be stored permanently into other plugins.
+src-namespace-prefix: megarabyte\permanentstorage
 author: Rishi
+description: Allows files and databases to be stored permanently into plugins.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace worldshandler;
+namespace megarabyte\worldshandler;
 
 use pocketmine\player\Player;
 use pocketmine\Server;

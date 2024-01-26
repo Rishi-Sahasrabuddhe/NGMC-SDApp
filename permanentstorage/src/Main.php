@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace permanentstorage;
+namespace megarabyte\permanentstorage;
 
 use pocketmine\plugin\PluginBase;
 
 class Main extends PluginBase
 {
+    // Placeholder to maintain plugin format
 }

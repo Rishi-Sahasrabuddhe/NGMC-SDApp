@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-namespace worldshandler\commands;
+namespace megarabyte\worldshandler\commands;
 
 use pocketmine\block\VanillaBlocks;
+use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
 use pocketmine\world\Position;
-use RecursiveIteratorIterator;
-
-use pocketmine\Server;
-use pocketmine\utils\TextFormat;
-use worldshandler\WorldHandler;
 
 class SetBlock
 {
@@ -19,7 +16,7 @@ class SetBlock
     private int $y;
     private int $z;
     private Position $pos;
-    public function __construct(int $x, int $y, int $z, $player)
+    public function __construct(int $x, int $y, int $z, Player|CommandSender $player)
     {
         $this->x = $x;
         $this->y = $y;

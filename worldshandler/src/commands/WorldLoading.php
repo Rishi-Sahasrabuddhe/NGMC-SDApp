@@ -2,13 +2,9 @@
 
 declare(strict_types=1);
 
-namespace worldshandler\commands;
+namespace megarabyte\worldshandler\commands;
 
-use pocketmine\player\Player;
-use pocketmine\Server;
-use pocketmine\utils\TextFormat;
-use pocketmine\world\World;
-use worldshandler\WorldHandler;
+use megarabyte\worldshandler\WorldHandler;
 
 class WorldLoading
 {

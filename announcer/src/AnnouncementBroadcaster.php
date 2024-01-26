@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace announcer;
+namespace megarabyte\announcer;
 
-use permanentstorage\Database;
+use megarabyte\messageservice\Error;
+
 use pocketmine\player\Player;
 use pocketmine\scheduler\Task;
-
-use Main;
-use messageservice\Error;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 

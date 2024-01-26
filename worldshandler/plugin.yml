@@ -1,11 +1,16 @@
 ---
 name: worldshandler
 version: 0.0.1
-main: worldshandler\Main
+main: megarabyte\worldshandler\Main
 api: 5.10.0
-src-namespace-prefix: worldshandler
+src-namespace-prefix: megarabyte\worldshandler
 prefix: Worlds Handler
 author: Rishi
+description: Manages worlds on the server, allowing for production.
+depend:
+  - "commands"
+  - "messageservice"
+
 commands:
   newworld:
     description: Creates a new world
@@ -38,7 +43,7 @@ commands:
     usage: "/unloadworld <world-name>"
     permission: worldshandler.admin
     permission-message: "§cYou do not have permission to use this command"
-  setBlock:
+  setblock:
     description: Spawns bedrock at the given coordinates (or 0,10,0)
     usage: "/unloadworld [x] [y] [z]"
     permission: worldshandler.admin
