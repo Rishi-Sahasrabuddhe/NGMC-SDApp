@@ -1,0 +1,13 @@
+---
+name: quest
+version: 0.0.1
+main: megarabyte\quest\Main
+api: 5.10.0
+src-namespace-prefix: megarabyte\quest
+author: Rishi
+description: Manages the quest line
+depend:
+  - "messageservice"
+  - "worldshandler"
+  - "writtenbooks"
+  - "permanentstorage"

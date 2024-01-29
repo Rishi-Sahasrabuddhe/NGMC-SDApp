@@ -4,30 +4,43 @@ declare(strict_types=1);
 
 namespace megarabyte\writtenbooks;
 
+use pocketmine\item\Item;
 use pocketmine\player\Player;
-
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\types\inventory\{
     ItemStack,
     ItemStackWrapper,
     UseItemTransactionData
 };
+use pocketmine\network\mcpe\protocol\types\BlockPosition;
+use pocketmine\math\Vector3;
 
 class OpenBook
 {
+    private Player $player;
+    private Book $book;
+
+
     function __construct(Player $player, Book $book)
     {
-        $originalItem = $player->getInventory()->getItemInHand();
-        $networkSession = $player->getNetworkSession();
+        $this->player = $player;
+        $this->book = $book;
+        $originalItem = $this->player->getInventory()->getItemInHand();
+        $this->process($this->book->convertToItem());
+        $this->player->getInventory()->setItemInHand($originalItem);
+    }
 
-        $player->getInventory()->setItemInHand($book);
+    private function process(Item $item)
+    {
+        foreach ($this->book->pages as $id => $page) $item->setPageText($id, $page->getText());
 
+        // DO NOT EDIT AFTER THIS POINT
+        $networkSession = $this->player->getNetworkSession();
         $networkSession->getInvManager()->syncSlot(
-            $player->getInventory(),
-            $player->getInventory()->getHeldItemIndex(),
-            $networkSession->getTypeConverter()->coreItemStackToNet($book)
+            $this->player->getInventory(),
+            $this->player->getInventory()->getHeldItemIndex(),
+            $networkSession->getTypeConverter()->coreItemStackToNet($item)
         );
-
         $networkSession->sendDataPacket(InventoryTransactionPacket::create(
             0,
             [],
@@ -43,6 +56,5 @@ class OpenBook
                 0
             )
         ));
-        $player->getInventory()->setItemInHand($originalItem);
     }
 }

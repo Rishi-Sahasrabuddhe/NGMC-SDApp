@@ -11,6 +11,7 @@ depend:
   - "messageservice"
   - "worldshandler"
   - "writtenbooks"
+  - "quest"
 
 commands:
   hub:

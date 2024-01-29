@@ -8,28 +8,28 @@ use pocketmine\player\Player;
 use pocketmine\world\Position;
 use pocketmine\world\World;
 
+use megarabyte\messageservice\HolographicText;
+use megarabyte\quest\QuestData;
 use megarabyte\worldshandler\WorldHandler;
+use pocketmine\utils\TextFormat;
 
 class LobbyConstants
 {
 
-    private const WELCOMEHOLOGRAPHICTEXT = "Welcome to the LeatherGames Network, the ultimate destination for players seeking
-    servers with original names! Win games and be rewarded with the coveted currency, LEATHER. This resource opens the gates to exclusive
-    areas within the lobby, granting you access to thrilling quests that will put your skills to the test. Engage with fellow gamers,
-    form alliances, and forge unforgettable memories.\n
-    Eager to delve deeper into the lore of LeatherGames? Click the leather icon in your hotbar to get started.\n\n
-    The LeatherGames Network: where YOU carve your journey...";
-    public HolographicText $infoHolographic;
 
-    public function __construct()
+    static function getWelcomeHolographicText(Player $player): string
     {
-        $this->infoHolographic = new HolographicText(
-            "Welcome!",
-            self::processHolographicText(self::WELCOMEHOLOGRAPHICTEXT, 80),
-            new Position(-12, 14.5, 0.5, WorldHandler::getWorldByString("lobby"))
-        );
+        if (QuestData::getDataFromPlayer($player)["questProgress"] === 0) $CTA = TextFormat::AQUA . "Click HERE to begin your questline!" . TextFormat::RESET;
+        else $CTA = TextFormat::AQUA . "Click on the Leather in your inventory to learn more about your quest!" . TextFormat::RESET;
+        return "Welcome to the LeatherGames Network, the ultimate destination for players seeking
+        servers with original names! Win games and be rewarded with the coveted currency, LEATHER. This resource opens the gates to exclusive
+        areas within the lobby, granting you access to thrilling quests that will put your skills to the test. Engage with fellow gamers,
+        form alliances, and forge unforgettable memories.\n
+        $CTA \n\n
+        LeatherGames Network: where YOU carve your journey...";
     }
 
+    public static HolographicText $infoHolographic;
 
     static function getLobbySpawnpoint(): Position
     {

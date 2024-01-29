@@ -6,9 +6,7 @@ namespace megarabyte\lobby;
 
 use megarabyte\commands\GeneralCommandChecker;
 use megarabyte\messageservice\Error;
-use megarabyte\writtenbooks\Book;
-
-
+use megarabyte\quest\QuestData;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\item\VanillaItems;
@@ -25,6 +23,7 @@ class Main extends PluginBase
     {
         $this->getServer()->getPluginManager()->registerEvents(new LobbyListeners(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new SignInteractions(), $this);
+        $this->getServer()->getPluginManager()->registerEvents(new inventories\GameTeleporterInventory(null), $this);
         $this->lobbyConstants = new LobbyConstants();
         self::$instance = $this;
     }
@@ -52,18 +51,12 @@ class Main extends PluginBase
         return true;
     }
 
-    public function setPlayerInventory(Player $player)
+    public function setLobbyInventory(Player $player)
     {
         $player->selectHotbarSlot(4);
         $inventory = $player->getInventory();
-        $inventory->setItem(1, VanillaItems::LEATHER());
-    }
-
-    public function clearPlayerInventory(Player $player)
-    {
-        $inventory = $player->getInventory();
-        for ($i = 0; $i < 36; $i++) {
-            $inventory->setItem($i, VanillaItems::AIR());
-        }
+        $inventory->clearAll();
+        if (QuestData::getDataFromPlayer($player)["questProgress"] >= 1) $inventory->setItem(1, VanillaItems::LEATHER()->setCustomName("Quest Manager"));
+        if (QuestData::getDataFromPlayer($player)["questProgress"] >= 2) $inventory->setItem(4, VanillaItems::COMPASS()->setCustomName("Game Teleporter"));
     }
 }

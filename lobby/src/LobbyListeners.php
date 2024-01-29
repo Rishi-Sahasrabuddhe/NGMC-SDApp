@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace megarabyte\lobby;
 
-
+use megarabyte\lobby\inventories\GameTeleporterInventory;
+use megarabyte\messageservice\HolographicText;
+use megarabyte\quest\QuestData;
+use megarabyte\worldshandler\WorldHandler;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\{
     PlayerEntityInteractEvent,
@@ -16,8 +20,8 @@ use pocketmine\event\player\{
 use pocketmine\item\VanillaItems;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
-use pocketmine\Server;
-use pocketmine\world\particle\FloatingTextParticle;
+use pocketmine\world\Position;
+use pocketmine\world\sound\PopSound;
 
 class LobbyListeners implements Listener
 {
@@ -26,9 +30,14 @@ class LobbyListeners implements Listener
         $player = $event->getPlayer();
         LobbyConstants::sendPlayerToSpawn($player);
         $main = Main::getInstance();
-        $main->lobbyConstants->infoHolographic->updateHolographic(Server::getInstance()->getWorldManager()->getWorldByName("lobby")->getPlayers());
-        $main->clearPlayerInventory($player);
-        $main->setPlayerInventory($player);
+        $main->setLobbyInventory($player);
+
+        LobbyConstants::$infoHolographic = new HolographicText(
+            "Welcome, " . $player->getName() . "!",
+            LobbyConstants::processHolographicText(LobbyConstants::getWelcomeHolographicText($player), 80),
+            new Position(-12, 14.5, 0.5, WorldHandler::getWorldByString("lobby")),
+            [$player]
+        );
     }
 
     public function onEntityDamage(EntityDamageEvent $event): void
@@ -44,32 +53,43 @@ class LobbyListeners implements Listener
     {
         $player = $event->getPlayer();
         $entity = $event->getEntity();
-        if ($entity instanceof FloatingTextParticle) {
-            $main = Main::getInstance();
-            $title = $player->getName() . "'s Stats";
-            $stats = "Leather: \n";
-            $stats .= "Wins: \n";
-            $stats .= "Losses: \n";
-            $main->lobbyConstants->infoHolographic->updateHolographic([$player], $title, $stats);
-        }
     }
 
-    public function onPlayerClickHotbarItem(PlayerInteractEvent $event): void
+    public function playerInteractEvent(PlayerInteractEvent $event): void
     {
         $action = $event->getAction();
         $item = $event->getItem();
         $player = $event->getPlayer();
         $block = $event->getBlock();
         $main = Main::getInstance();
-        // if ($action === UseItemTransactionData::RIGHT_CLICK_AIR) {
         if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
             if ($item !== null && $item->getTypeId() === VanillaItems::LEATHER()->getTypeId()) {
                 LobbyBooks::howToUseLeather($player)->openBook($player);
+                if (QuestData::getDataFromPlayer($player)["questProgress"] === 1) {
+                    QuestData::getDatabase($player)->edit("questProgress", 2);
+                    $player->getWorld()->addSound($player->getPosition(), new PopSound(), [$player]);
+                    $player->sendTip("Click on the Game Teleporter in Slot 5!");
+                    $main->setLobbyInventory($player);
+                }
+            }
+            if ($item !== null && $item->getTypeId() === VanillaItems::COMPASS()->getTypeId()) {
+                new GameTeleporterInventory($player);
             }
         }
 
-        if ($item->getTypeId() === VanillaItems::WRITTEN_BOOK()->getTypeId()) {
-            $player->sendMessage("Opened " . $item->getTitle());
+        if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK || $action === PlayerInteractEvent::LEFT_CLICK_BLOCK) {
+            $blockPos = $block->getPosition();
+            $blockX = $blockPos->getX();
+            $blockY = $blockPos->getY();
+            $blockZ = $blockPos->getZ();
+            if ($blockX === -13 && 13 <= $blockY && $blockY <= 16 && 5 >= $blockZ && $blockZ >= -5) {
+                if (QuestData::getDataFromPlayer($player)["questProgress"] === 0) {
+                    QuestData::getDatabase($player)->edit("questProgress", 1);
+                    $player->getWorld()->addSound($player->getPosition(), new PopSound(), [$player]);
+                    $player->sendTip("Click on the Quest Manager in Slot 2!");
+                    $main->setLobbyInventory($player);
+                }
+            }
         }
     }
 
@@ -80,5 +100,11 @@ class LobbyListeners implements Listener
         if ($player->getGamemode() !== GameMode::CREATIVE()) {
             $event->cancel();
         }
+    }
+
+    public function onInventoryUpdate(InventoryTransactionEvent $event): void
+    {
+        $player = $event->getTransaction()->getSource();
+        if ($player->getGamemode() !== GameMode::CREATIVE) $event->cancel();
     }
 }

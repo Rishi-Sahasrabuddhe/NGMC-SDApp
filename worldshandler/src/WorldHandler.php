@@ -72,4 +72,28 @@ class WorldHandler
         }
         return true;
     }
+
+    static function duplicateWorld(string $sourceWorldPath, string $destinationPath, string $newWorldName): void
+    {
+        if (is_dir($sourceWorldPath)) {
+            if (!is_dir($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $dirContents = scandir($sourceWorldPath);
+            foreach ($dirContents as $file) {
+                if ($file != "." && $file != "..") {
+                    $sourcePath = $sourceWorldPath . DIRECTORY_SEPARATOR . $file;
+                    $newDirectory = $newWorldName . DIRECTORY_SEPARATOR . $file;
+                    $destPath = $destinationPath . DIRECTORY_SEPARATOR . $newDirectory;
+                    if (is_dir($sourcePath)) {
+                        WorldHandler::duplicateWorld($sourcePath, $destPath, $newWorldName);
+                    } else {
+                        copy($sourcePath, $destPath);
+                    }
+                }
+            }
+        }
+
+        self::getWorldByString($newWorldName)->setDisplayName($newWorldName);
+    }
 }

@@ -9,6 +9,7 @@ class Database
     private string $databaseName;
 
     private string $filePath;
+    private array $defaultValues = [];
 
     private string $databasePath;
 
@@ -18,15 +19,18 @@ class Database
      * @param string $databaseName The name of the database.
      * @param string $filePath The base path where the database file is stored.
      */
-    public function __construct(string $databaseName, string $filePath)
+    public function __construct(string $databaseName, string $filePath, array $defaultValues = [])
     {
         $this->databaseName = $databaseName;
         $this->filePath = $filePath;
+        $this->defaultValues = $defaultValues;
 
         if (!file_exists($filePath)) {
             mkdir($filePath, 0777, true);
         }
         $this->databasePath = $filePath . DIRECTORY_SEPARATOR . $databaseName . ".json";
+
+        if (!empty($defaultValues)) $this->write($defaultValues);
     }
 
     /**
@@ -98,9 +102,9 @@ class Database
      * Edit the value of a key in the database.
      *
      * @param string $key The key to be edited.
-     * @param string $newValue The new value for the key.
+     * @param mixed $newValue The new value for the key.
      */
-    public function edit(string $key, string $newValue): void
+    public function edit(string $key, mixed $newValue): void
     {
         $data = $this->read();
         if (array_key_exists($key, $data)) {
@@ -116,7 +120,7 @@ class Database
      *
      * @return string|null The value associated with the key, or null if the key is not found.
      */
-    public function get(string $key): ?string
+    public function get(string $key): mixed
     {
         $data = $this->read();
         return $data[$key] ?? null;
@@ -139,8 +143,6 @@ class Database
     public static function getDatabaseFromPath(string $path): ?Database
     {
         $pathInfo = pathinfo($path);
-
-        // Check if the path is a directory
         if (is_dir($pathInfo['dirname'])) {
             $databaseName = $pathInfo['filename'];
             $filePath = $pathInfo['dirname'];
@@ -155,5 +157,14 @@ class Database
         }
 
         return null;
+    }
+
+    public function getDefaultValues(): array
+    {
+        return $this->defaultValues;
+    }
+    public function setDefaultValues(array $defaultValues)
+    {
+        $this->defaultValues = $defaultValues;
     }
 }
