@@ -1,0 +1,9 @@
+---
+name: npc
+version: 0.0.1
+main: megarabyte\npc\Main
+api: 5.10.0
+src-namespace-prefix: megarabyte\npc
+description: Allows plugins to make custom NPCs
+author: Rishi
+...

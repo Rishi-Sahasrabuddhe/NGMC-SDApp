@@ -33,10 +33,10 @@ class Main extends PluginBase
                     return true;
                 }
                 if (WorldLoading::loadWorld($args[0])) {
-                    $sender->sendMessage("World " . $args[0] . "successfully loaded.");
+                    $sender->sendMessage("World " . $args[0] . " successfully loaded.");
                     return true;
                 } else {
-                    $sender->sendMessage("World " . $args[0] . "could not load. Check the name and try again.");
+                    $sender->sendMessage("World " . $args[0] . " could not load. Check the name and try again.");
                     return false;
                 }
             case 'unloadworld':
@@ -45,13 +45,13 @@ class Main extends PluginBase
                     return true;
                 }
                 if (WorldLoading::unloadWorld($args[0])) {
-                    $sender->sendMessage("World " . $args[0] . "successfully loaded.");
+                    $sender->sendMessage("World " . $args[0] . " successfully unloaded.");
                     return true;
                 } elseif (WorldLoading::unloadWorld($args[0]) === null) {
-                    $sender->sendMessage("World " . $args[0] . "not found. Check the name and try again.");
+                    $sender->sendMessage("World " . $args[0] . " not found. Check the name and try again.");
                     return true;
                 } else {
-                    $sender->sendMessage("World " . $args[0] . "could not load.");
+                    $sender->sendMessage("World " . $args[0] . " could not unload.");
                 }
             case 'newworld':
                 if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
@@ -110,6 +110,7 @@ class Main extends PluginBase
                     $sender->sendMessage($sender->getName() . " has successfully joined $worldName");
                 } else {
                     $sender->sendMessage($sender->getName() . " could not join $worldName");
+                    return false;
                 }
                 break;
             case 'getworld':

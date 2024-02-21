@@ -17,8 +17,9 @@ class QuestListener implements Listener
 
         $player = $event->getPlayer();
         $questData = new QuestData();
-        if (Database::getDatabaseFromPath(QuestData::PLAYER_DATA_PATH . $player->getName() . ".json") instanceof Database) {
-            $questData->validateDatabase($player);
+        $db = Database::getDatabaseFromPath(QuestData::PLAYER_DATA_PATH . $player->getName() . ".json");
+        if ($db instanceof Database) {
+            $questData->validateDatabase($player, $db);
         }
     }
 }

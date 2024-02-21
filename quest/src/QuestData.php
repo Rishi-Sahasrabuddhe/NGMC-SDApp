@@ -26,9 +26,9 @@ class QuestData
         ];
     }
 
-    public function validateDatabase(Player $player)
+    public function validateDatabase(Player $player, Database $database = null)
     {
-        $db = Database::getDatabaseFromPath(self::PLAYER_DATA_PATH . $player->getName() . ".json");
+        $db = $database ?? Database::getDatabaseFromPath(self::PLAYER_DATA_PATH . $player->getName() . ".json");
         $defaultValues = $this->defaultValues;
         $existingData = $db->read();
         if (empty($existingData)) {

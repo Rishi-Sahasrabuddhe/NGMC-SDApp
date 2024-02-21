@@ -16,12 +16,13 @@ class JoinWorld
 
     public static function joinWorld($world, $player): bool
     {
+
         if ($world instanceof World) {
-            $world = $world->getFolderName(); // Transforms World to string
+            $world = $world->getFolderName();
         }
 
         if (!is_string($world)) {
-            return false; // Returns false if world is not a string
+            return false;
         }
 
         return WorldHandler::joinWorld($world, $player);

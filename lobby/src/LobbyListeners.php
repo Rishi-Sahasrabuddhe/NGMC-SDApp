@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace megarabyte\lobby;
 
 use megarabyte\lobby\inventories\GameTeleporterInventory;
+use megarabyte\lobby\lobbynpcs\LobbyNPCManager;
 use megarabyte\messageservice\HolographicText;
 use megarabyte\quest\QuestData;
 use megarabyte\worldshandler\WorldHandler;
+use muqsit\invmenu\inventory\InvMenuInventory;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
@@ -15,8 +17,10 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\{
     PlayerEntityInteractEvent,
     PlayerInteractEvent,
-    PlayerJoinEvent
+    PlayerJoinEvent,
+    PlayerQuitEvent
 };
+use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\VanillaItems;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
@@ -31,6 +35,7 @@ class LobbyListeners implements Listener
         LobbyConstants::sendPlayerToSpawn($player);
         $main = Main::getInstance();
         $main->setLobbyInventory($player);
+        (new LobbyNPCManager())->spawnLobbyNPCs($player);
 
         LobbyConstants::$infoHolographic = new HolographicText(
             "Welcome, " . $player->getName() . "!",
@@ -38,6 +43,14 @@ class LobbyListeners implements Listener
             new Position(-12, 14.5, 0.5, WorldHandler::getWorldByString("lobby")),
             [$player]
         );
+
+        QuestData::getDatabase($player)->edit('inGame', true);
+    }
+
+    function onPlayerQuit(PlayerQuitEvent $event): void
+    {
+        $player = $event->getPlayer();
+        QuestData::getDatabase($player)->edit('inGame', false);
     }
 
     public function onEntityDamage(EntityDamageEvent $event): void
@@ -105,6 +118,7 @@ class LobbyListeners implements Listener
     public function onInventoryUpdate(InventoryTransactionEvent $event): void
     {
         $player = $event->getTransaction()->getSource();
-        if ($player->getGamemode() !== GameMode::CREATIVE) $event->cancel();
+
+        if ($player->getGamemode() !== GameMode::CREATIVE && $player->getCurrentWindow() instanceof PlayerInventory) $event->cancel();
     }
 }
