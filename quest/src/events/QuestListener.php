@@ -8,11 +8,12 @@ use megarabyte\permanentstorage\Database;
 use megarabyte\quest\QuestData;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\Server;
 
 class QuestListener implements Listener
 {
-    public function onJoin(PlayerJoinEvent $event)
+    public function onJoin(PlayerLoginEvent $event)
     {
 
         $player = $event->getPlayer();

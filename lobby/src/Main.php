@@ -6,6 +6,8 @@ declare(strict_types=1);
 namespace megarabyte\lobby;
 
 use megarabyte\commands\GeneralCommandChecker;
+use megarabyte\eventsafeguard\PlayerEventSafeGuard as PESG;
+use megarabyte\lobby\inventories\GameTeleporterInventory;
 use megarabyte\lobby\lobbynpcs\LobbyNPCListeners;
 use megarabyte\messageservice\Error;
 use megarabyte\quest\QuestData;
@@ -15,6 +17,8 @@ use muqsit\invmenu\InvMenuHandler;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\item\enchantment\EnchantmentInstance;
+use pocketmine\item\enchantment\VanillaEnchantments;
 use pocketmine\item\VanillaItems;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
@@ -41,6 +45,14 @@ class Main extends PluginBase
         }
     }
 
+    public function onDisable(): void
+    {
+        foreach (($this->getServer()->getOnlinePlayers()) as $player) {
+            $player->kick('', null, 'Server shutdown.');
+            QuestData::getDatabase($player)->edit('inGame', false);
+        }
+    }
+
     public static function getInstance(): ?self
     {
         return self::$instance;
@@ -57,6 +69,12 @@ class Main extends PluginBase
                 LobbyConstants::sendPlayerToSpawn($sender);
                 break;
 
+            case 'listeners':
+                foreach ($sender->activeListeners as $listener) {
+                    $sender->sendMessage($listener);
+                }
+                break;
+
             default:
                 $sender->sendMessage(Error::unknownCommandError($command)->sendError());
                 break;
@@ -64,12 +82,17 @@ class Main extends PluginBase
         return true;
     }
 
-    public function setLobbyInventory(Player $player)
+    public static function configureLobby(Player $player)
     {
+        PESG::config($player);
+        PESG::addListener($player, self::class);
+        PESG::addListener($player, GameTeleporterInventory::class);
+
         $player->selectHotbarSlot(4);
         $inventory = $player->getInventory();
         $inventory->clearAll();
-        if (QuestData::getDataFromPlayer($player)["questProgress"] >= 1) $inventory->setItem(1, VanillaItems::LEATHER()->setCustomName("Quest Manager"));
-        if (QuestData::getDataFromPlayer($player)["questProgress"] >= 2) $inventory->setItem(4, VanillaItems::COMPASS()->setCustomName("Game Teleporter"));
+
+        if (QuestData::getDataArray($player)["questProgress"] >= 1) $inventory->setItem(1, VanillaItems::LEATHER()->setCustomName("Quest Manager"));
+        if (QuestData::getDataArray($player)["questProgress"] >= 2) $inventory->setItem(4, VanillaItems::COMPASS()->setCustomName("Game Teleporter"));
     }
 }

@@ -121,7 +121,6 @@ class Book extends WritableBookBase
         if ($action) $this->pages = array_merge($this->pages, $result);
         elseif (!$action) foreach ($result as $id => $page) {
             $this->setLocalPageText($id, $page);
-            // $this->setPageText($id, $page);
         }
         else new \Error("Action not bool");
     }

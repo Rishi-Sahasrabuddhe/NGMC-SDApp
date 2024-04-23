@@ -140,23 +140,22 @@ class Database
      *
      * @return Database|null The Database instance, or null if the path is invalid.
      */
-    public static function getDatabaseFromPath(string $path): ?Database
+    public static function getDatabaseFromPath(string $path): Database
     {
         $pathInfo = pathinfo($path);
-        if (is_dir($pathInfo['dirname'])) {
-            $databaseName = $pathInfo['filename'];
-            $filePath = $pathInfo['dirname'];
-            $databasePath = $filePath . DIRECTORY_SEPARATOR . $databaseName . ".json";
+        $filePath = $pathInfo['dirname'];
+        if (!is_dir($filePath)) {
+            mkdir($filePath, 0777, true);
+        }
+        $databaseName = $pathInfo['filename'];
+        $databasePath = $filePath . DIRECTORY_SEPARATOR . $databaseName . ".json";
 
-            // Create the file if it doesn't exist
-            if (!file_exists($databasePath)) {
-                file_put_contents($databasePath, '[]');
-            }
-
-            return new Database($databaseName, $filePath);
+        // Create the file if it doesn't exist
+        if (!file_exists($databasePath)) {
+            file_put_contents($databasePath, '[]');
         }
 
-        return null;
+        return new Database($databaseName, $filePath);
     }
 
     public function getDefaultValues(): array

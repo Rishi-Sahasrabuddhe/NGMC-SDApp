@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace megarabyte\quest;
 
 use megarabyte\permanentstorage\Database;
+use megarabyte\permanentstorage\DatabaseHandler;
 use pocketmine\player\Player;
 
-class QuestData
+class QuestData extends DatabaseHandler
 {
     private array $defaultValues = [];
     const PLAYER_DATA_PATH = "plugins/quest/src/data/players/";
@@ -28,8 +29,9 @@ class QuestData
 
     public function validateDatabase(Player $player, Database $database = null)
     {
-        $db = $database ?? Database::getDatabaseFromPath(self::PLAYER_DATA_PATH . $player->getName() . ".json");
+
         $defaultValues = $this->defaultValues;
+        $db = $database ?? Database::getDatabaseFromPath(self::PLAYER_DATA_PATH . $player->getName() . ".json");
         $existingData = $db->read();
         if (empty($existingData)) {
             $existingData = $defaultValues;
@@ -46,7 +48,7 @@ class QuestData
     }
 
 
-    public static function getDataFromPlayer(Player $player): array
+    public static function getDataArray(Player $player): array
     {
         return Database::getDatabaseFromPath(self::PLAYER_DATA_PATH . $player->getName())->read();
     }
@@ -58,6 +60,6 @@ class QuestData
 
     public static function getGameStatus(Player $player): bool
     {
-        return (self::getDataFromPlayer($player))["inGame"];
+        return (self::getDataArray($player))["inGame"];
     }
 }

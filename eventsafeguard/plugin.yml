@@ -1,0 +1,7 @@
+---
+name: eventsafeguard
+version: 0.0.1
+main: megarabyte\eventsafeguard\PlayerEventSafeguard
+api: 5.11.0
+src-namespace-prefix: megarabyte\eventsafeguard
+...

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace megarabyte\lobby\lobbynpcs;
 
+use megarabyte\eventsafeguard\PlayerEventSafeGuard as PESG;
 use pocketmine\entity\Human;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\Listener;
@@ -16,10 +17,13 @@ class LobbyNPCListeners implements Listener
 {
     public function onAttack(EntityDamageByEntityEvent $event): void
     {
-        $event->cancel();
         $entity = $event->getEntity();
-        if ($event->getDamager() instanceof Player)
-            if ($entity instanceof Human) LobbyNPCManager::performNPCAction($entity, $event->getDamager());
+        $damager = $event->getDamager();
+        if ($damager instanceof Player) {
+            if (!PESG::playerHasListener($damager, self::class)) return;
+            if ($entity instanceof Human) LobbyNPCManager::performNPCAction($entity, $damager);
+            $event->cancel();
+        }
     }
 
     public function onInteract(PlayerEntityInteractEvent $event): void
@@ -27,11 +31,7 @@ class LobbyNPCListeners implements Listener
         $entity = $event->getEntity();
         $player = $event->getPlayer();
 
+        if (!PESG::playerHasListener($player, self::class)) return;
         if ($entity instanceof Human) LobbyNPCManager::performNPCAction($entity, $player);
-    }
-
-    public function onInventoryItemClicked(InventoryTransactionEvent $event): void
-    {
-        // $event->cancel();
     }
 }

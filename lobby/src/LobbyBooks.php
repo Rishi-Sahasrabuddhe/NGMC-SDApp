@@ -33,7 +33,7 @@ class LobbyBooks
         return <<<EOT
         {$jackie->say()}Oh well look-ey 'ere. Yar look like fresh meat.
         {$playerChar->say()}Erm yeah! Just came through the other day. Hi, I'm {$playerChar->getLastName()}.
-        {$jackie->say()}Oi get your migrant hand away from me! The whole lot of you of are discusting. Waddlin' in like you own the place-
+        {$jackie->say()}Oi get your migrant hand away from me! The whole lot of you of are disgusting. Waddlin' in like you own the place-
         {$playerChar->say()}Well excuse you! I'm having such a bad day getting my-
         {$jackie->say()}Leather confiscated by the authorities. Yeah, they're takin' it all for 'emselves.
         {$playerChar->say()}What?

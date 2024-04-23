@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace megarabyte\lobby;
 
+use megarabyte\eventsafeguard\PlayerEventSafeGuard;
 use pocketmine\player\Player;
 use pocketmine\world\Position;
 use pocketmine\world\World;
@@ -11,15 +12,14 @@ use pocketmine\world\World;
 use megarabyte\messageservice\HolographicText;
 use megarabyte\quest\QuestData;
 use megarabyte\worldshandler\WorldHandler;
+use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
 
 class LobbyConstants
 {
-
-
     static function getWelcomeHolographicText(Player $player): string
     {
-        if (QuestData::getDataFromPlayer($player)["questProgress"] === 0) $CTA = TextFormat::AQUA . "Click HERE to begin your questline!" . TextFormat::RESET;
+        if (QuestData::getDataArray($player)["questProgress"] === 0) $CTA = TextFormat::AQUA . "Click HERE to begin your questline!" . TextFormat::RESET;
         else $CTA = TextFormat::AQUA . "Click on the Leather in your inventory to learn more about your quest!" . TextFormat::RESET;
         return "Welcome to the LeatherGames Network, the ultimate destination for players seeking
         servers with original names! Win games and be rewarded with the coveted currency, LEATHER. This resource opens the gates to exclusive
@@ -46,6 +46,8 @@ class LobbyConstants
         $player->setRotation(-90, 180);
         WorldHandler::joinWorld("lobby", $player, self::getLobbySpawnpoint());
         $player->setSpawn(self::getLobbySpawnpoint());
+        PlayerEventSafeGuard::config($player);
+        \megarabyte\lobby\Main::configureLobby($player);
     }
 
     public static function processHolographicText(string $text, int $length): string

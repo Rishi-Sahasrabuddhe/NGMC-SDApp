@@ -10,6 +10,7 @@ use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\InvMenuHandler;
 use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
+use pocketmine\entity\EntityFactory;
 use pocketmine\entity\Human;
 use pocketmine\math\Vector3;
 use pocketmine\entity\Location;
@@ -23,7 +24,7 @@ use pocketmine\world\sound\ClickSound;
 use pocketmine\world\sound\ScrapeSound;
 use pocketmine\world\sound\XpCollectSound;
 
-class LeatherWorker
+class LeatherWorker extends HumanNPC
 {
 
     private Player $player;
@@ -44,7 +45,7 @@ class LeatherWorker
             ->setLore(["10 Leather", "100 Points"]);
 
         $this->buyleather = VanillaItems::LEATHER()
-            ->setCustomName(TextFormat::DARK_PURPLE . "Buy Leather")
+            ->setCustomName(TextFormat::GOLD . "Buy Leather")
             ->setLore(["500 Points", "10 Leather"]);
 
         $inventory = $npcInventory->getInventory();
@@ -84,7 +85,7 @@ class LeatherWorker
                     $data->edit('leather', $leather + 10);
                 } else {
                     $player->broadcastSound((new ClickSound()), [$player]);
-                    $player->sendMessage(TextFormat::RED . "You can not buy this item! You require " . 500 - $points . " more leather.");
+                    $player->sendMessage(TextFormat::RED . "You can not buy this item! You require " . 500 - $points . " more points.");
                 }
             }
 
@@ -100,6 +101,10 @@ class LeatherWorker
             HumanNPC::getSkinFromImage("plugins\lobby\src\lobbynpcs\skins\leatherworker.png")
         );
         $leatherworker->setNameTag("Leather Worker");;
+
+        // (new EntityFactory())->register($leatherworker::class, function () use ($leatherworker): HumanNPC {
+        //     return new HumanNPC($leatherworker->getNPCLocation(), $leatherworker->getNPCSkin());
+        // }, ['Leather Worker']);
 
         return $leatherworker;
     }

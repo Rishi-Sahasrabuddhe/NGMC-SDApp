@@ -20,6 +20,7 @@ use megarabyte\worldshandler\commands\{
     SetBlock,
     WorldLoading
 };
+use pocketmine\Server;
 
 class Main extends PluginBase
 {
@@ -32,6 +33,10 @@ class Main extends PluginBase
                     $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
                     return true;
                 }
+                if (!isset($args[0])) {
+                    $sender->sendMessage((new Error("No world name included"))->sendError());
+                    return false;
+                }
                 if (WorldLoading::loadWorld($args[0])) {
                     $sender->sendMessage("World " . $args[0] . " successfully loaded.");
                     return true;
@@ -43,6 +48,10 @@ class Main extends PluginBase
                 if (!GeneralCC::checkIfHasPermission($sender, $command)) { // Checks if sender has permission to run the command
                     $sender->sendMessage(GeneralCC::permissionValidationMessage($command)); // Sends sender error message if they do not have the required permissions
                     return true;
+                }
+                if (!isset($args[0])) {
+                    $sender->sendMessage((new Error("No world name included"))->sendError());
+                    return false;
                 }
                 if (WorldLoading::unloadWorld($args[0])) {
                     $sender->sendMessage("World " . $args[0] . " successfully unloaded.");
@@ -152,5 +161,13 @@ class Main extends PluginBase
                 break;
         }
         return true;
+    }
+
+    public function onDisable(): void
+    {
+        $wm = Server::getInstance()->getWorldManager();
+        foreach ($wm->getWorlds() as $world) {
+            $wm->unloadWorld($world, true);
+        }
     }
 }

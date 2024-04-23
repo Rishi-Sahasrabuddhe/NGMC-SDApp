@@ -25,12 +25,12 @@ class HumanNPC extends Human
         $this->location = $location;
         $this->skin = $skin;
         $this->nbt = $nbt;
-        parent::__construct($location, $skin, $nbt);
 
-
-        EntityFactory::getInstance()->register(Human::class, function (World $world, \pocketmine\nbt\tag\CompoundTag $nbt): Human {
-            return new Human(EntityDataHelper::parseLocation($nbt, $world), Human::parseSkinNBT($nbt), $nbt);
+        EntityFactory::getInstance()->register(Human::class, function (World $world, \pocketmine\nbt\tag\CompoundTag $nbt) use ($location, $skin): HumanNPC {
+            return new HumanNPC($location, $skin, $nbt);
         }, ['Human']);
+
+        parent::__construct($location, $skin, $nbt);
     }
 
     public static function getSkinFromImage(string $path)
@@ -52,5 +52,20 @@ class HumanNPC extends Human
         @imagedestroy($img);
 
         return new Skin("Standard_CustomSlim", $bytes);
+    }
+
+    public function getNPCLocation(): Location
+    {
+        return $this->location;
+    }
+
+    public function getNPCSkin()
+    {
+        return $this->nbt;
+    }
+
+    public function getNPCNBT(): Skin
+    {
+        return $this->skin;
     }
 }

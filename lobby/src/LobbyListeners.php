@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace megarabyte\lobby;
 
+use megarabyte\eventsafeguard\PlayerEventSafeGuard as PESG;
 use megarabyte\lobby\inventories\GameTeleporterInventory;
 use megarabyte\lobby\lobbynpcs\LobbyNPCManager;
 use megarabyte\messageservice\HolographicText;
 use megarabyte\quest\QuestData;
 use megarabyte\worldshandler\WorldHandler;
+
 use muqsit\invmenu\inventory\InvMenuInventory;
+
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
@@ -20,22 +23,36 @@ use pocketmine\event\player\{
     PlayerJoinEvent,
     PlayerQuitEvent
 };
-use pocketmine\inventory\PlayerInventory;
+use pocketmine\event\server\ServerEvent;
 use pocketmine\item\VanillaItems;
+use pocketmine\network\mcpe\protocol\GameRulesChangedPacket;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
+use pocketmine\Server;
 use pocketmine\world\Position;
 use pocketmine\world\sound\PopSound;
 
 class LobbyListeners implements Listener
 {
+    private Listener $instance;
+    function __construct()
+    {
+        $this->instance = $this;
+    }
+
+    static function getInstance(): self
+    {
+        return self::$instance;
+    }
+
     function onPlayerJoin(PlayerJoinEvent $event): void
     {
         $player = $event->getPlayer();
+
         LobbyConstants::sendPlayerToSpawn($player);
-        $main = Main::getInstance();
-        $main->setLobbyInventory($player);
+
         (new LobbyNPCManager())->spawnLobbyNPCs($player);
+
 
         LobbyConstants::$infoHolographic = new HolographicText(
             "Welcome, " . $player->getName() . "!",
@@ -43,28 +60,31 @@ class LobbyListeners implements Listener
             new Position(-12, 14.5, 0.5, WorldHandler::getWorldByString("lobby")),
             [$player]
         );
-
         QuestData::getDatabase($player)->edit('inGame', true);
     }
 
     function onPlayerQuit(PlayerQuitEvent $event): void
     {
         $player = $event->getPlayer();
+        PESG::removeAllListeners($player, self::class);
         QuestData::getDatabase($player)->edit('inGame', false);
     }
 
     public function onEntityDamage(EntityDamageEvent $event): void
     {
         $entity = $event->getEntity();
+        $cause = $event->getCause();
 
-        if ($entity instanceof Player) {
+        if ($entity instanceof Player && PESG::playerHasListener($entity, self::class)) {
             $event->cancel();
+            if ($cause === EntityDamageEvent::CAUSE_VOID) LobbyConstants::sendPlayerToSpawn($entity);
         }
     }
 
     public function onPlayerEntityInteraction(PlayerEntityInteractEvent $event): void
     {
         $player = $event->getPlayer();
+        if (!PESG::playerHasListener($player, self::class)) return;
         $entity = $event->getEntity();
     }
 
@@ -75,14 +95,17 @@ class LobbyListeners implements Listener
         $player = $event->getPlayer();
         $block = $event->getBlock();
         $main = Main::getInstance();
+
+        if (!PESG::playerHasListener($player, self::class)) return;
+
         if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
             if ($item !== null && $item->getTypeId() === VanillaItems::LEATHER()->getTypeId()) {
                 LobbyBooks::howToUseLeather($player)->openBook($player);
-                if (QuestData::getDataFromPlayer($player)["questProgress"] === 1) {
+                if (QuestData::getDataArray($player)["questProgress"] === 1) {
                     QuestData::getDatabase($player)->edit("questProgress", 2);
                     $player->getWorld()->addSound($player->getPosition(), new PopSound(), [$player]);
                     $player->sendTip("Click on the Game Teleporter in Slot 5!");
-                    $main->setLobbyInventory($player);
+                    $main->configureLobby($player);
                 }
             }
             if ($item !== null && $item->getTypeId() === VanillaItems::COMPASS()->getTypeId()) {
@@ -96,19 +119,21 @@ class LobbyListeners implements Listener
             $blockY = $blockPos->getY();
             $blockZ = $blockPos->getZ();
             if ($blockX === -13 && 13 <= $blockY && $blockY <= 16 && 5 >= $blockZ && $blockZ >= -5) {
-                if (QuestData::getDataFromPlayer($player)["questProgress"] === 0) {
+                if (QuestData::getDataArray($player)["questProgress"] === 0) {
                     QuestData::getDatabase($player)->edit("questProgress", 1);
                     $player->getWorld()->addSound($player->getPosition(), new PopSound(), [$player]);
                     $player->sendTip("Click on the Quest Manager in Slot 2!");
-                    $main->setLobbyInventory($player);
+                    $main->configureLobby($player);
                 }
             }
         }
     }
 
-    public function onPlayerBlockBreak(BlockBreakEvent $event)
+    public function onPlayerBlockBreak(BlockBreakEvent $event): void
     {
         $player = $event->getPlayer();
+        if (!PESG::playerHasListener($player, self::class)) return;
+
 
         if ($player->getGamemode() !== GameMode::CREATIVE()) {
             $event->cancel();
@@ -119,6 +144,8 @@ class LobbyListeners implements Listener
     {
         $player = $event->getTransaction()->getSource();
 
-        if ($player->getGamemode() !== GameMode::CREATIVE && $player->getCurrentWindow() instanceof PlayerInventory) $event->cancel();
+        if (!PESG::playerHasListener($player, self::class)) return;
+
+        if ($player->getGamemode() !== GameMode::CREATIVE && !$player->getCurrentWindow() instanceof InvMenuInventory) $event->cancel();
     }
 }

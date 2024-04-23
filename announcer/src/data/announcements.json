@@ -7,7 +7,7 @@
     "rankFeatures": {
         "name": "tier",
         "announcement": "DIAMOND Tier Unleashed! Gain access to LEGEND RANK abilities and commands. Grind away!",
-        "usability": false
+        "usability": true
     },
     "serverEvent": {
         "name": "serverEvent",
@@ -17,6 +17,6 @@
     "voteRewards": {
         "name": "voteRewards",
         "announcement": "Vote for the server and earn exclusive rewards! Help us grow and reap the benefits!",
-        "usability": false
+        "usability": true
     }
 }

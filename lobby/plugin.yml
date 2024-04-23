@@ -12,6 +12,7 @@ depend:
   - "worldshandler"
   - "writtenbooks"
   - "quest"
+load: STARTUP
 
 commands:
   hub:
@@ -20,6 +21,10 @@ commands:
     aliases:
       - lobby
       - spawn
+    permission: lobby.player
+  listeners:
+    description: Get listeners 
+    usage: "/listeners"
     permission: lobby.player
 
 permissions:

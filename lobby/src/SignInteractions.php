@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace megarabyte\lobby;
 
+use megarabyte\eventsafeguard\PlayerEventSafeGuard as PESG;
 use pocketmine\block\BaseSign;
 use pocketmine\block\utils\SignText;
 use pocketmine\block\utils\SignTextTest;
@@ -16,9 +17,22 @@ use pocketmine\Server;
 
 class SignInteractions implements Listener
 {
+
+    private Listener $instance;
+    function __construct()
+    {
+        $this->instance = $this;
+    }
+
+    static function getInstance(): self
+    {
+        return self::$instance;
+    }
     public function onSignChange(SignChangeEvent $event): void
     {
         $block = $event->getBlock();
+        $player = $event->getPlayer();
+        if (!PESG::playerHasListener($player, self::class)) return;
         if ($block instanceof BaseSign) {
             $this->configureClickableSign($block);
         }
@@ -29,6 +43,8 @@ class SignInteractions implements Listener
         $action = $event->getAction();
         $player = $event->getPlayer();
         $block = $event->getBlock();
+        
+        if (!PESG::playerHasListener($player, self::class)) return;
 
         if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
             if ($block instanceof BaseSign) {

@@ -4,35 +4,62 @@ declare(strict_types=1);
 
 namespace megarabyte\quest\games\WhackoHorse;
 
+use megarabyte\eventsafeguard\PlayerEventSafeGuard;
+use megarabyte\npc\HumanNPC;
 use megarabyte\worldshandler\WorldHandler;
+use megarabyte\quest\games\GamesPluginBase;
+use megarabyte\quest\QuestData;
 use pocketmine\entity\Entity;
+use pocketmine\entity\EntityDataHelper;
+use pocketmine\entity\EntityFactory;
+use pocketmine\entity\Location;
 use pocketmine\item\VanillaItems;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\player\Player;
+use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\ClosureTask;
+use pocketmine\scheduler\Task;
+use pocketmine\Server;
+use pocketmine\utils\TextFormat;
 use pocketmine\world\Position;
+use pocketmine\world\sound\PopSound;
+use pocketmine\world\World;
 
-class WhackoHorseGame
+class WhackoHorseGame extends Task
 {
     private Player $player;
-    private array $horsePos = [];
+    private array $horseLoc = [];
 
     function __construct(Player $player)
     {
         $this->player = $player;
-        WorldHandler::duplicateWorld("preset\\whack-o-horse", "whack-o-horse\\players", "whack-o-horse-" . $player->getName());
-        $world = WorldHandler::getWorldByString("whack-o-horse-" . $player->getName());
+
+        PlayerEventSafeGuard::removeAllListeners($player, WhackoHorseListener::class);
+        \megarabyte\quest\Main::getInstance()->getServer()->getPluginManager()->registerEvents(new WhackoHorseListener($this), \megarabyte\quest\Main::getInstance());
+
+
+        $world = WorldHandler::getWorldByString(WorldHandler::duplicateWorld("preset\\whack-o-horse-random", "whack-o-horse\\players", "whack-o-horse-" .
+            preg_replace('/[^A-Za-z0-9]+/', '_', trim(preg_replace('/_+/', '_', $player->getName()), '_'))));
         $player->teleport(new Position(0, 12, 0, $world));
         $this->setGameInventory($player);
 
-        // $this->horsePos = [
-        //     new Position(0, 12, 0, $world) => false,
-        //     new Position(0, 12, 0, $world) => false,
-        //     new Position(0, 12, 0, $world) => false,
-        //     new Position(0, 12, 0, $world) => false,
-        //     new Position(0, 12, 0, $world) => false,
-        //     new Position(0, 12, 0, $world) => false,
-        //     new Position(0, 12, 0, $world) => false,
-        //     new Position(0, 12, 0, $world) => false
-        // ];
+        $this->horseLoc = [
+            new HorseLocation(new Location(-2.5, 11, 0.5, $world, 90, 90)),
+            new HorseLocation(new Location(-1.5, 11, -1.5, $world, 90, 90)),
+            new HorseLocation(new Location(0.5, 11, -2.5, $world, 90, 90)),
+            new HorseLocation(new Location(2.5, 11, -1.5, $world, 90, 90)),
+            new HorseLocation(new Location(3.5, 11, 0.5, $world, 90, 90)),
+            new HorseLocation(new Location(2.5, 11, 2.5, $world, 90, 90)),
+            new HorseLocation(new Location(0.5, 11, 3.5, $world, 90, 90)),
+            new HorseLocation(new Location(-1.5, 11, 2.5, $world, 90, 90))
+        ];
+
+        GamesPluginBase::startHorseSpawnTask($this);
+    }
+
+    public function getPlayer(): Player
+    {
+        return $this->player;
     }
 
     private function setGameInventory(Player $player = null)
@@ -41,45 +68,71 @@ class WhackoHorseGame
         $inv = $player->getInventory();
         $inv->clearAll();
         $inv->setItem(0, VanillaItems::WOODEN_SWORD());
+        $inv->setItem(8, VanillaItems::BLAZE_ROD()->setCustomName(TextFormat::RED . "Back"));
     }
 
     private function spawnRandomHorse(): void
     {
-        $horsePos = $this->getRandomHorsePosition();
-        $level = $this->player->getWorld();
+        $horseLocation = $this->getRandomHorseLocation();
 
-        // Spawn a horse entity
-        $horse = Entity::createEntity(EntityIds::HORSE, $level, new CompoundTag("", [
-            new StringTag("id", EntityIds::HORSE),
-            new StringTag("CustomName", "WhackoHorse"),
-        ]));
+        if ($horseLocation === null) return;
+        $world = $this->player->getWorld();
 
-        $horse->teleport($horsePos);
-        $level->addEntity($horse);
+        $horse = new WOHHorse($horseLocation);
+        $horse->spawnTo($this->player);
+        $horse->broadcastSound(new PopSound(0.5), [$this->player]);
+        $horse->teleport($horseLocation);
+        $horse->lookAt(new Position(0, 12, 0, $world));
     }
 
-    private function getRandomHorsePosition(): Position
+    public function destructHorse(Player $player, WOHHorse $horse)
     {
-        $availablePositions = array_keys(array_filter($this->horsePos, function ($value) {
-            return $value === false;
-        }));
+        $activeTime = time() - $horse->getCreationTime();
 
-        $randomKey = array_rand($availablePositions);
+        $leather = (15 - $activeTime);
 
-        // Make sure the key exists in the original array
-        if (isset($this->horsePos[$randomKey])) {
-            $this->horsePos[$randomKey] = true;
-            return $randomKey;
+        if ($leather < -100) $leather = -100;
+
+        QuestData::getDatabase($player)->edit(
+            'leather',
+            QuestData::getDatabase($player)->get('leather') + $leather
+        );
+
+        if ($leather < 0) $player->sendActionBarMessage(
+            TextFormat::RED .
+                "Be faster next time! You just lost " . abs($leather) . " leather!"
+        );
+
+        $player->broadcastSound(new \pocketmine\world\sound\ExplodeSound(), [$player]);
+
+        foreach ($this->horseLoc as $horseLocation) {
+            if ($horseLocation->getLocation()->equals($horse->getInitialLocation())) {
+                $horseLocation->setUsability(true);
+                break;
+            }
         }
+
+        $horse->kill();
     }
 
-    private function startHorseSpawnTask(): void
+
+    private function getRandomHorseLocation(): ?Location
     {
-        $task = new ClosureTask(function (int $currentTick): void {
-            $this->spawnRandomHorse();
+        $availableLocations = array_filter($this->horseLoc, function ($class) {
+            return $class->getUsability();
         });
 
-        // Schedule the task to run every 3 to 7 seconds
-        $this->player->getServer()->getScheduler()->scheduleRepeatingTask($task, mt_rand(60 * 3, 60 * 7)); // 60 ticks per second
+        $randomKey = empty($availableLocations) ? null : array_rand($availableLocations);
+
+        if (isset($availableLocations[$randomKey])) {
+            $location = ($availableLocations[$randomKey])->getLocation();
+            ($availableLocations[$randomKey])->setUsability(false);
+            return $location;
+        } else return null;
+    }
+
+    public function onRun(): void
+    {
+        for ($i = 0; $i < random_int(0, 1); $i++) $this->spawnRandomHorse();
     }
 }
