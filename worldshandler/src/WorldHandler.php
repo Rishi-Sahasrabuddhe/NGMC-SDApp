@@ -68,8 +68,16 @@ class WorldHandler
         $worldManager = self::getWorldManager();
         $world = self::getWorldByString($world);
         if ($world === null) return true;
-        // if ($world->isLoaded() === true) return true;
         else return $worldManager->unloadWorld($world, true);
+    }
+
+    static function unloadAllWorlds()
+    {
+        $worldManager = self::getWorldManager();
+        foreach ($worldManager->getWorlds() as $world) {
+            $worldManager->unloadWorld($world, true);
+            Server::getInstance()->getLogger()->info($world->getFolderName());
+        }
     }
 
     static function joinWorld(string $world, Player $player, ?Position $pos = null): bool

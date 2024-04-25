@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace megarabyte\lobby\lobbynpcs;
 
+use megarabyte\lobby\inventories\LobbyInventory;
 use megarabyte\npc\HumanNPC;
 use megarabyte\quest\QuestData;
 use muqsit\invmenu\InvMenu;
-use muqsit\invmenu\InvMenuHandler;
 use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
-use pocketmine\entity\EntityFactory;
 use pocketmine\entity\Human;
 use pocketmine\math\Vector3;
 use pocketmine\entity\Location;
@@ -22,7 +21,6 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use pocketmine\world\sound\ClickSound;
 use pocketmine\world\sound\ScrapeSound;
-use pocketmine\world\sound\XpCollectSound;
 
 class LeatherWorker extends HumanNPC
 {
@@ -34,8 +32,9 @@ class LeatherWorker extends HumanNPC
     private Item $buypoints;
     private Item $buyleather;
 
-    public function __construct(Player $player, Human $leatherWorker)
+    public function __construct(Player $player, HumanNPC $leatherWorker)
     {
+
         $this->player = $player;
         $this->leatherWorker = $leatherWorker;
         $npcInventory = InvMenu::create(InvMenu::TYPE_HOPPER);
@@ -89,6 +88,11 @@ class LeatherWorker extends HumanNPC
                 }
             }
 
+            \megarabyte\quest\Main::checkPlayerProgress($player, $this->invMenu);
+
+            new LobbyInventory($player);
+
+
             return $transaction->discard();
         });
     }
@@ -100,11 +104,7 @@ class LeatherWorker extends HumanNPC
             Location::fromObject(new Vector3(9.5, 12, -8.5), Server::getInstance()->getWorldManager()->getWorldByName("lobby"), 45),
             HumanNPC::getSkinFromImage("plugins\lobby\src\lobbynpcs\skins\leatherworker.png")
         );
-        $leatherworker->setNameTag("Leather Worker");;
-
-        // (new EntityFactory())->register($leatherworker::class, function () use ($leatherworker): HumanNPC {
-        //     return new HumanNPC($leatherworker->getNPCLocation(), $leatherworker->getNPCSkin());
-        // }, ['Leather Worker']);
+        $leatherworker->setNameTag("Leather Worker");
 
         return $leatherworker;
     }

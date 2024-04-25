@@ -34,4 +34,6 @@ class LobbyNPCListeners implements Listener
         if (!PESG::playerHasListener($player, self::class)) return;
         if ($entity instanceof Human) LobbyNPCManager::performNPCAction($entity, $player);
     }
+
+    
 }

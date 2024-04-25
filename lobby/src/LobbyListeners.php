@@ -7,6 +7,7 @@ namespace megarabyte\lobby;
 use megarabyte\eventsafeguard\PlayerEventSafeGuard as PESG;
 use megarabyte\lobby\inventories\GameTeleporterInventory;
 use megarabyte\lobby\lobbynpcs\LobbyNPCManager;
+use megarabyte\lobby\quest\doors\Door1;
 use megarabyte\messageservice\HolographicText;
 use megarabyte\quest\QuestData;
 use megarabyte\worldshandler\WorldHandler;
@@ -21,6 +22,7 @@ use pocketmine\event\player\{
     PlayerEntityInteractEvent,
     PlayerInteractEvent,
     PlayerJoinEvent,
+    PlayerMoveEvent,
     PlayerQuitEvent
 };
 use pocketmine\event\server\ServerEvent;
@@ -61,6 +63,9 @@ class LobbyListeners implements Listener
             [$player]
         );
         QuestData::getDatabase($player)->edit('inGame', true);
+
+        $player->getHungerManager()->setSaturation(20);
+        $player->getHungerManager()->setFood(20);
     }
 
     function onPlayerQuit(PlayerQuitEvent $event): void
@@ -100,13 +105,16 @@ class LobbyListeners implements Listener
 
         if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
             if ($item !== null && $item->getTypeId() === VanillaItems::LEATHER()->getTypeId()) {
-                LobbyBooks::howToUseLeather($player)->openBook($player);
                 if (QuestData::getDataArray($player)["questProgress"] === 1) {
                     QuestData::getDatabase($player)->edit("questProgress", 2);
                     $player->getWorld()->addSound($player->getPosition(), new PopSound(), [$player]);
                     $player->sendTip("Click on the Game Teleporter in Slot 5!");
                     $main->configureLobby($player);
                 }
+                if (QuestData::getDataArray($player)["questProgress"] > 1 && QuestData::getDataArray($player)["questProgress"] < 4)
+                    LobbyBooks::howToUseLeather($player)->openBook($player);
+                if (QuestData::getDataArray($player)["questProgress"] >= 4 && QuestData::getDataArray($player)["questProgress"] < 6)
+                    LobbyBooks::howToUseLeather($player)->openBook($player);
             }
             if ($item !== null && $item->getTypeId() === VanillaItems::COMPASS()->getTypeId()) {
                 new GameTeleporterInventory($player);
@@ -125,6 +133,28 @@ class LobbyListeners implements Listener
                     $player->sendTip("Click on the Quest Manager in Slot 2!");
                     $main->configureLobby($player);
                 }
+            }
+        }
+    }
+
+    public function onPlayerMove(PlayerMoveEvent $event): void
+    {
+        $player = $event->getPlayer();
+        if (!PESG::playerHasListener($player, self::class)) return;
+
+        $newLoca = $event->getTo();
+        if (
+            Door1::checkDoorUnlocked($player) == true &&
+            abs($newLoca->getFloorX()) < 2 &&
+            $newLoca->getFloorY() >= 12 && $newLoca->getFloorY() <= 15
+        ) {
+            if ($newLoca->getFloorZ() == 12) {
+                Door1::teleportThroughDoor($player, true);
+                return;
+            }
+            if ($newLoca->getFloorZ() == 14) {
+                Door1::teleportBACKThroughDoor($player, true);
+                return;
             }
         }
     }

@@ -22,8 +22,9 @@ class LobbyNPCManager
     {
         switch ($npc->getNameTag()) {
             case 'Leather Worker':
-                (new LeatherWorker($player, $npc))->openWorkerInventory($player);
+                (new LeatherWorker($player, $npc))->openWorkerInventory();
                 break;
         }
+        \megarabyte\quest\Main::checkPlayerProgress($player);
     }
 }

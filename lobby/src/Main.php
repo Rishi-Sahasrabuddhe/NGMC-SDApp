@@ -8,6 +8,7 @@ namespace megarabyte\lobby;
 use megarabyte\commands\GeneralCommandChecker;
 use megarabyte\eventsafeguard\PlayerEventSafeGuard as PESG;
 use megarabyte\lobby\inventories\GameTeleporterInventory;
+use megarabyte\lobby\inventories\LobbyInventory;
 use megarabyte\lobby\lobbynpcs\LobbyNPCListeners;
 use megarabyte\messageservice\Error;
 use megarabyte\quest\QuestData;
@@ -84,15 +85,11 @@ class Main extends PluginBase
 
     public static function configureLobby(Player $player)
     {
+        \megarabyte\quest\Main::checkPlayerProgress($player);
         PESG::config($player);
         PESG::addListener($player, self::class);
         PESG::addListener($player, GameTeleporterInventory::class);
 
-        $player->selectHotbarSlot(4);
-        $inventory = $player->getInventory();
-        $inventory->clearAll();
-
-        if (QuestData::getDataArray($player)["questProgress"] >= 1) $inventory->setItem(1, VanillaItems::LEATHER()->setCustomName("Quest Manager"));
-        if (QuestData::getDataArray($player)["questProgress"] >= 2) $inventory->setItem(4, VanillaItems::COMPASS()->setCustomName("Game Teleporter"));
+        new LobbyInventory($player, 4);
     }
 }

@@ -66,8 +66,16 @@ class WhackoHorseGame extends Task
     {
         $player = $player ?? $this->player;
         $inv = $player->getInventory();
+        $db = QuestData::getDatabase($player);
         $inv->clearAll();
         $inv->setItem(0, VanillaItems::WOODEN_SWORD());
+        $inv->setItem(4, VanillaItems::EMERALD()
+            ->setCustomName("Stats")
+            ->setLore([
+                "Chapter: " . strval($db->get("chapter")),
+                "Leather: " . strval($db->get("leather")),
+                "Points: " . strval($db->get("points"))
+            ]));
         $inv->setItem(8, VanillaItems::BLAZE_ROD()->setCustomName(TextFormat::RED . "Back"));
     }
 
@@ -79,10 +87,10 @@ class WhackoHorseGame extends Task
         $world = $this->player->getWorld();
 
         $horse = new WOHHorse($horseLocation);
-        $horse->spawnTo($this->player);
         $horse->broadcastSound(new PopSound(0.5), [$this->player]);
         $horse->teleport($horseLocation);
         $horse->lookAt(new Position(0, 12, 0, $world));
+        $horse->spawnTo($this->player);
     }
 
     public function destructHorse(Player $player, WOHHorse $horse)

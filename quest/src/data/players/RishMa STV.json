@@ -1,10 +1,12 @@
 {
     "name": "RishMa STV",
-    "questProgress": 2,
-    "chapter": 1,
-    "points": 0,
-    "leather": 0,
-    "doorsUnlocked": [],
+    "questProgress": 3,
+    "chapter": 2,
+    "points": 11899,
+    "leather": 9653,
+    "doorsUnlocked": [
+        "megarabyte\\lobby\\quest\\doors\\Door1"
+    ],
     "league": 0,
     "inGame": false
 }

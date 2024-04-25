@@ -118,7 +118,7 @@ class Database
      *
      * @param string $key The key to retrieve the value for.
      *
-     * @return string|null The value associated with the key, or null if the key is not found.
+     * @return mixed The value associated with the key, or null if the key is not found.
      */
     public function get(string $key): mixed
     {

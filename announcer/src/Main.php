@@ -9,8 +9,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\HandlerListManager;
 use pocketmine\utils\TextFormat;
-
-use commands\GeneralCommandChecker as GCC;
+use megarabyte\commands\GeneralCommandChecker as GCC;
 use messageservice\Error;
 
 class Main extends PluginBase
@@ -20,13 +19,17 @@ class Main extends PluginBase
 
     public function onEnable(): void
     {
-        $this->getScheduler()->scheduleRepeatingTask(new AnnouncementBroadcaster(), 20 * mt_rand(300, 600));
+        $this->getScheduler()->scheduleRepeatingTask(new AnnouncementBroadcaster(), 20 * mt_rand(1, 2));
         $this->announcementsDatabase = new AnnouncementLists();
     }
 
 
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool
     {
+        if (!GCC::checkIfHasPermission($sender, $command)) {
+            $sender->sendMessage(GCC::permissionValidationMessage($command));
+            return true;
+        }
         switch ($command->getName()) {
             case 'announcement':
                 $announcementHandler = new AnnouncementHandler();
@@ -38,10 +41,7 @@ class Main extends PluginBase
                     "- edit (edits existing announcement)\n" .
                     "- view (views announcement message)";
 
-                if (!GCC::checkIfHasPermission($sender, $command)) {
-                    $sender->sendMessage(GCC::permissionValidationMessage($command));
-                    return true;
-                }
+
                 if (!isset($args[0])) $args[0] = 'help';
                 $name = isset($args[1]) ? strtolower($args[1]) : null;
                 switch ($args[0]) {

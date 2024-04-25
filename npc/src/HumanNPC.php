@@ -26,11 +26,11 @@ class HumanNPC extends Human
         $this->skin = $skin;
         $this->nbt = $nbt;
 
-        EntityFactory::getInstance()->register(Human::class, function (World $world, \pocketmine\nbt\tag\CompoundTag $nbt) use ($location, $skin): HumanNPC {
-            return new HumanNPC($location, $skin, $nbt);
-        }, ['Human']);
-
         parent::__construct($location, $skin, $nbt);
+
+        (EntityFactory::getInstance())->register(self::class, function () use ($location, $skin, $nbt): HumanNPC {
+            return new HumanNPC($location, $skin, $nbt);
+        }, ['Leather Worker']);
     }
 
     public static function getSkinFromImage(string $path)

@@ -2,7 +2,7 @@
     "storeSale": {
         "name": "storeSale",
         "announcement": " Store Sale: 20% off on all items! Limited time offer. Learn more at https:\/\/lethergamesmc.co\/store",
-        "usability": true
+        "usability": false
     },
     "rankFeatures": {
         "name": "tier",
@@ -12,11 +12,11 @@
     "serverEvent": {
         "name": "serverEvent",
         "announcement": "Join us for the Mega Whack-o-Horse Event this weekend! Exciting challenges and rewards await. Don't miss out!",
-        "usability": false
+        "usability": true
     },
     "voteRewards": {
         "name": "voteRewards",
         "announcement": "Vote for the server and earn exclusive rewards! Help us grow and reap the benefits!",
-        "usability": true
+        "usability": false
     }
 }

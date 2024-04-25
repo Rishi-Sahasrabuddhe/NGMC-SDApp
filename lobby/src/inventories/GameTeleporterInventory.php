@@ -17,10 +17,8 @@ use pocketmine\utils\TextFormat;
 class GameTeleporterInventory extends PlayerInventory implements Listener
 {
 
-    private Listener $instance;
     function __construct(?Player $player)
     {
-        $this->instance = $this;
         if ($player === null) return;
         $qp = QuestData::getDatabase($player)->get("questProgress");
         $inv = $player->getInventory();
@@ -31,12 +29,8 @@ class GameTeleporterInventory extends PlayerInventory implements Listener
         }
         $inv->setItem(8, VanillaItems::BLAZE_ROD()->setCustomName(TextFormat::RED . "Back"));
     }
-    
 
-    static function getInstance(): self
-    {
-        return self::$instance;
-    }
+
 
     public function playerInteractEvent(PlayerInteractEvent $event): void
     {
