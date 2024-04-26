@@ -23,7 +23,6 @@ class WhackoHorseListener implements Listener
 {
     private WhackoHorseGame $game;
 
-
     public function __construct(WhackoHorseGame $game)
     {
         $this->game = $game;
@@ -66,10 +65,24 @@ class WhackoHorseListener implements Listener
         $player = $event->getPlayer();
 
         if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK || $action === PlayerInteractEvent::LEFT_CLICK_BLOCK) {
-            if ($item->getTypeId() === VanillaItems::BLAZE_ROD()->getTypeId()) {
-                foreach (WOHHorse::getAllHorses() as $horse) $this->game->destructHorse($player, $horse);
+            $itemTypeId = $item->getTypeId();
 
-                LobbyConstants::sendPlayerToSpawn($player);
+            switch ($itemTypeId) {
+                case VanillaItems::BLAZE_ROD()->getTypeId():
+                    foreach (WOHHorse::getAllHorses() as $horse) {
+                        $this->game->destructHorse($player, $horse);
+                    }
+                    LobbyConstants::sendPlayerToSpawn($player);
+                    break;
+                case VanillaItems::EMERALD()->getTypeId():
+                    $db = QuestData::getDatabase($player);
+                    $player->sendMessage(
+                        TextFormat::BOLD . "Chapter: " . TextFormat::RESET . strval($db->get('chapter')) . "\n" .
+                            TextFormat::BOLD . "Leather: " . TextFormat::RESET . strval($db->get('leather')) . "\n" .
+                            TextFormat::BOLD . "Points: " . TextFormat::RESET . strval($db->get('points')) . "\n"
+                    );
+                    $player->selectHotbarSlot(0);
+                    break;
             }
         }
     }

@@ -29,13 +29,14 @@ class WhackoHorseGame extends Task
 {
     private Player $player;
     private array $horseLoc = [];
+    private \megarabyte\quest\Main $main;
 
     function __construct(Player $player)
     {
         $this->player = $player;
-
+        $this->main = \megarabyte\quest\Main::getInstance();
         PlayerEventSafeGuard::removeAllListeners($player, WhackoHorseListener::class);
-        \megarabyte\quest\Main::getInstance()->getServer()->getPluginManager()->registerEvents(new WhackoHorseListener($this), \megarabyte\quest\Main::getInstance());
+        $this->main->getServer()->getPluginManager()->registerEvents(new WhackoHorseListener($this), \megarabyte\quest\Main::getInstance());
 
 
         $world = WorldHandler::getWorldByString(WorldHandler::duplicateWorld("preset\\whack-o-horse-random", "whack-o-horse\\players", "whack-o-horse-" .
@@ -56,6 +57,8 @@ class WhackoHorseGame extends Task
 
         GamesPluginBase::startHorseSpawnTask($this);
     }
+
+
 
     public function getPlayer(): Player
     {
@@ -83,11 +86,19 @@ class WhackoHorseGame extends Task
     {
         $horseLocation = $this->getRandomHorseLocation();
 
-        if ($horseLocation === null) return;
+        if ($horseLocation === null) {
+            return;
+        }
         $world = $this->player->getWorld();
 
-        $horse = new WOHHorse($horseLocation);
+        try {
+            $horse = new WOHHorse($horseLocation);
+        } catch (\pocketmine\utils\AssumptionFailedError $e) {
+            return;
+        }
+
         $horse->broadcastSound(new PopSound(0.5), [$this->player]);
+        $horse->setSilent();
         $horse->teleport($horseLocation);
         $horse->lookAt(new Position(0, 12, 0, $world));
         $horse->spawnTo($this->player);
@@ -101,9 +112,11 @@ class WhackoHorseGame extends Task
 
         if ($leather < -100) $leather = -100;
 
-        QuestData::getDatabase($player)->edit(
+        $db = QuestData::getDatabase($player);
+
+        $db->edit(
             'leather',
-            QuestData::getDatabase($player)->get('leather') + $leather
+            $db->get('leather') + $leather
         );
 
         if ($leather < 0) $player->sendActionBarMessage(
@@ -120,7 +133,13 @@ class WhackoHorseGame extends Task
             }
         }
 
+        if ($db->get('questProgress') == 2 && $db->get('leather') >= 200) {
+            $player->sendActionBarMessage('Go back to the lobby and buy some points off the Leather Worker!');
+            $db->edit('questProgress', 3);
+        }
+
         $horse->kill();
+        $this->setGameInventory($player);
     }
 
 

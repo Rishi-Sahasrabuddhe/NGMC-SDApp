@@ -25,14 +25,10 @@ use pocketmine\event\player\{
     PlayerMoveEvent,
     PlayerQuitEvent
 };
-use pocketmine\event\server\ServerEvent;
-use pocketmine\item\VanillaItems;
-use pocketmine\network\mcpe\protocol\GameRulesChangedPacket;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\Position;
-use pocketmine\world\sound\PopSound;
 
 class LobbyListeners implements Listener
 {
@@ -103,23 +99,6 @@ class LobbyListeners implements Listener
 
         if (!PESG::playerHasListener($player, self::class)) return;
 
-        if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
-            if ($item !== null && $item->getTypeId() === VanillaItems::LEATHER()->getTypeId()) {
-                if (QuestData::getDataArray($player)["questProgress"] === 1) {
-                    QuestData::getDatabase($player)->edit("questProgress", 2);
-                    $player->getWorld()->addSound($player->getPosition(), new PopSound(), [$player]);
-                    $player->sendTip("Click on the Game Teleporter in Slot 5!");
-                    $main->configureLobby($player);
-                }
-                if (QuestData::getDataArray($player)["questProgress"] > 1 && QuestData::getDataArray($player)["questProgress"] < 4)
-                    LobbyBooks::howToUseLeather($player)->openBook($player);
-                if (QuestData::getDataArray($player)["questProgress"] >= 4 && QuestData::getDataArray($player)["questProgress"] < 6)
-                    LobbyBooks::howToUseLeather($player)->openBook($player);
-            }
-            if ($item !== null && $item->getTypeId() === VanillaItems::COMPASS()->getTypeId()) {
-                new GameTeleporterInventory($player);
-            }
-        }
 
         if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK || $action === PlayerInteractEvent::LEFT_CLICK_BLOCK) {
             $blockPos = $block->getPosition();
@@ -129,7 +108,7 @@ class LobbyListeners implements Listener
             if ($blockX === -13 && 13 <= $blockY && $blockY <= 16 && 5 >= $blockZ && $blockZ >= -5) {
                 if (QuestData::getDataArray($player)["questProgress"] === 0) {
                     QuestData::getDatabase($player)->edit("questProgress", 1);
-                    $player->getWorld()->addSound($player->getPosition(), new PopSound(), [$player]);
+                    $player->getWorld()->addSound($player->getPosition(), new \pocketmine\world\sound\PopSound(), [$player]);
                     $player->sendTip("Click on the Quest Manager in Slot 2!");
                     $main->configureLobby($player);
                 }
@@ -144,7 +123,6 @@ class LobbyListeners implements Listener
 
         $newLoca = $event->getTo();
         if (
-            Door1::checkDoorUnlocked($player) == true &&
             abs($newLoca->getFloorX()) < 2 &&
             $newLoca->getFloorY() >= 12 && $newLoca->getFloorY() <= 15
         ) {

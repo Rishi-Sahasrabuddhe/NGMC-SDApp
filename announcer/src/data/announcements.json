@@ -7,12 +7,12 @@
     "rankFeatures": {
         "name": "tier",
         "announcement": "DIAMOND Tier Unleashed! Gain access to LEGEND RANK abilities and commands. Grind away!",
-        "usability": true
+        "usability": false
     },
     "serverEvent": {
         "name": "serverEvent",
         "announcement": "Join us for the Mega Whack-o-Horse Event this weekend! Exciting challenges and rewards await. Don't miss out!",
-        "usability": true
+        "usability": false
     },
     "voteRewards": {
         "name": "voteRewards",

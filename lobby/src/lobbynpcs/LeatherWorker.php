@@ -88,6 +88,11 @@ class LeatherWorker extends HumanNPC
                 }
             }
 
+            if ($data->get('questProgress') == 3 && $data->get('points') !== 0) {
+                $player->sendMessage(TextFormat::GREEN . "Explore around the lobby. Maybe you can use these points for something?");
+                $data->edit('questProgress', 4);
+            }
+
             \megarabyte\quest\Main::checkPlayerProgress($player, $this->invMenu);
 
             new LobbyInventory($player);

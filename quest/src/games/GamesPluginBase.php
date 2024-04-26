@@ -14,6 +14,6 @@ class GamesPluginBase extends PluginBase
 {
     static function startHorseSpawnTask(WhackoHorseGame $game): void
     {
-        \megarabyte\quest\Main::getInstance()->getScheduler()->scheduleRepeatingTask($game, rand(20, 50)); 
+        \megarabyte\quest\Main::getInstance()->getScheduler()->scheduleRepeatingTask($game, rand(10, 30));
     }
 }

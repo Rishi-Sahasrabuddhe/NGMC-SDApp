@@ -19,7 +19,7 @@ class Main extends PluginBase
 
     public function onEnable(): void
     {
-        $this->getScheduler()->scheduleRepeatingTask(new AnnouncementBroadcaster(), 20 * mt_rand(1, 2));
+        $this->getScheduler()->scheduleRepeatingTask(new AnnouncementBroadcaster(), 20 * mt_rand(120, 300));
         $this->announcementsDatabase = new AnnouncementLists();
     }
 

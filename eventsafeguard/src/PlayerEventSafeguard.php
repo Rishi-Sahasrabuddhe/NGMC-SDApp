@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace megarabyte\eventsafeguard;
 
 use megarabyte\lobby\inventories\GameTeleporterInventory;
+use megarabyte\lobby\inventories\LobbyInventory;
 use megarabyte\lobby\LobbyConstants;
 use megarabyte\lobby\LobbyListeners;
 use megarabyte\lobby\lobbynpcs\LobbyNPCListeners;
@@ -22,6 +23,7 @@ class PlayerEventSafeGuard extends PluginBase
             LobbyListeners::class,
             LobbyNPCListeners::class,
             GameTeleporterInventory::class,
+            LobbyInventory::class,
             SignInteractions::class,
             QuestListener::class
         ];

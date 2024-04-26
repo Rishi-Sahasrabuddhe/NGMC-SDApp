@@ -37,6 +37,7 @@ class Main extends PluginBase
         $this->getServer()->getPluginManager()->registerEvents(new LobbyListeners(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new SignInteractions(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new LobbyNPCListeners(), $this);
+        $this->getServer()->getPluginManager()->registerEvents(new inventories\LobbyInventory(null), $this);
         $this->getServer()->getPluginManager()->registerEvents(new inventories\GameTeleporterInventory(null), $this);
         $this->lobbyConstants = new LobbyConstants();
         self::$instance = $this;
